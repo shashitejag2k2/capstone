@@ -1,0 +1,50 @@
+package com.hv.jobhunt.controllers;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.services.EmployeerService;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeerControllerTest {
+	
+	 	@Mock
+	    private EmployeerService employerService;
+
+	    @InjectMocks
+	    private EmployeerController employeerController;
+
+	 @Test
+	    public void testLoginSuccess() {
+	        when(employerService.login(any(), any())).thenReturn("Login successful");
+	        
+	        Employeer validEmployeer = new Employeer();
+	        validEmployeer.setEmailId("valid@example.com");
+	        validEmployeer.setPassword("validpassword");
+	        ResponseEntity<Object> response = employeerController.login(validEmployeer);
+	        assertEquals(HttpStatus.OK, response.getStatusCode());
+	        assertEquals("Login successful", response.getBody());
+	    }
+
+	    @Test
+	    public void testLoginFailure() {
+	       when(employerService.login(any(), any())).thenThrow(new Exception("Invalid credentials"));
+	       Employeer invalidEmployeer = new Employeer();
+	        invalidEmployeer.setEmailId("invalid@example.com");
+	        invalidEmployeer.setPassword("invalidpassword");
+	        ResponseEntity<Object> response = employeerController.login(invalidEmployeer);
+	        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+	        assertEquals("Invalid email or password", response.getBody());
+	    }
+
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="EmployeerControllerTest" project="jobhunt" tests="2" started="2" failures="0" errors="0" ignored="0">
+  <testsuite name="com.hv.jobhunt.controllers.EmployeerControllerTest" time="0.427" displayname="EmployeerControllerTest" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.controllers.EmployeerControllerTest]">
+    <testcase name="testLoginSuccess" classname="com.hv.jobhunt.controllers.EmployeerControllerTest" time="0.424" displayname="testLoginSuccess()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.controllers.EmployeerControllerTest]/[method:testLoginSuccess()]"/>
+    <testcase name="testLoginFailure" classname="com.hv.jobhunt.controllers.EmployeerControllerTest" time="0.003" displayname="testLoginFailure()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.controllers.EmployeerControllerTest]/[method:testLoginFailure()]"/>
+  </testsuite>
+</testrun>

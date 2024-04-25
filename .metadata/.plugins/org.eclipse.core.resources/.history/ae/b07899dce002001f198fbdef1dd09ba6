@@ -1,0 +1,25 @@
+package com.hv.jobportal.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.hv.jobportal.Models.AppliedJobs;
+import com.hv.jobportal.Models.Employeer;
+
+public interface EmployeerRepo extends JpaRepository<Employeer,Integer>{
+	
+	 Employeer findByEmailIdAndPassword(String emailId, String password);
+	 
+	 Employeer findByEmployeeId(int EmployeeId);
+	 
+	 String deleteByEmployeeId(int emp_id);
+	 
+	 Employeer findByEmailId(String status);
+	 
+	 Employeer findBySubscriptionType(String employeerMail);
+	 
+	 
+	 
+
+}

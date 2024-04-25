@@ -1,0 +1,58 @@
+package com.hv.jobhunt.controllers;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.services.EmployeerService;
+
+class EmployeerControllerTest {
+	
+	 	@Mock
+	    private EmployeerService employerService;
+
+	    @InjectMocks
+	    private EmployeerController employeerController;
+
+	 @Test
+	    public void testLoginSuccess() {
+	        // Mocking the behavior of employerService.login() method to return a success message
+	        when(employerService.login(anyString(), anyString())).thenReturn("Login successful");
+
+	        // Creating a sample Employeer object with valid credentials
+	        Employeer validEmployeer = new Employeer();
+	        validEmployeer.setEmailId("valid@example.com");
+	        validEmployeer.setPassword("validpassword");
+
+	        // Calling the login method
+	        ResponseEntity<Object> response = employeerController.login(validEmployeer);
+
+	        // Verifying that the response status is OK and the response body contains the success message
+	        assertEquals(HttpStatus.OK, response.getStatusCode());
+	        assertEquals("Login successful", response.getBody());
+	    }
+
+	    @Test
+	    public void testLoginFailure() {
+	        // Mocking the behavior of employerService.login() method to throw an exception
+	        when(employerService.login(anyString(), anyString())).thenThrow(new Exception("Invalid email or password"));
+
+	        // Creating a sample Employeer object with invalid credentials
+	        Employeer invalidEmployeer = new Employeer();
+	        invalidEmployeer.setEmailId("invalid@example.com");
+	        invalidEmployeer.setPassword("invalidpassword");
+
+	        // Calling the login method
+	        ResponseEntity<Object> response = yourController.login(invalidEmployeer);
+
+	        // Verifying that the response status is UNAUTHORIZED and the response body contains the error message
+	        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+	        assertEquals("Invalid email or password", response.getBody());
+	    }
+
+}

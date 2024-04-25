@@ -1,0 +1,164 @@
+package com.hv.jobhunt.controllers;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.CrossOrigin;
+//import org.springframework.web.bind.annotation.DeleteMapping;
+//import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.PathVariable;
+//import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PutMapping;
+//import org.springframework.web.bind.annotation.RequestBody;
+//import org.springframework.web.bind.annotation.RequestParam;
+//import org.springframework.web.bind.annotation.RestController;
+import javax.persistence.*;
+
+
+import com.hv.jobhunt.Models.Admin;
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.Models.Subscription;
+import com.hv.jobhunt.services.AdminService;
+
+
+@CrossOrigin(origins="http://localhost:3000")
+@RestController
+public class AdminController {
+	
+	@Autowired
+	private  AdminService adminService;
+
+    
+
+	@PostMapping("/adminLogin")
+	public ResponseEntity<String> login(@RequestBody Admin admin) {
+	
+	 try {
+	        String loginResult = adminService.login(admin);
+
+	        return new ResponseEntity<>(loginResult, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+    }
+	
+	@GetMapping("/getEmployes")
+    public ResponseEntity<Iterable<Employeer>> getEmployes() {
+		 try {
+		        Iterable<Employeer> results = adminService.getEmployeers();
+		        return ResponseEntity.ok().body(results);
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		    }
+    }
+	
+	@GetMapping("/getIndividualEmployeer")
+    public ResponseEntity<Employeer> getIndividualEmploye(@RequestParam("EmpId") int Emp_id) {
+	 
+		try {
+	        Employeer employee = adminService.getIndividualEmployee(Emp_id);
+	        if (employee != null) {
+	            return ResponseEntity.ok().body(employee);
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+    }
+	
+	@DeleteMapping("/deleteEmployeer")//deletes the employeer
+    public ResponseEntity<String> deleteEmployeer(@RequestParam("EmpId") int Emp_id) {
+	 
+		try {
+	        String employee = adminService.deleteEmployee(Emp_id);
+	        return ResponseEntity.ok().body("Employeer Deleted Successfully");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete employeer: " + e.getMessage());
+	    }
+    }
+	
+	@PutMapping("/updatePlan")//pending
+    public ResponseEntity<String> updatePlan(@RequestParam("EmpId") int Emp_id) {
+	 
+		String employee = adminService.deleteEmployee(Emp_id);
+        
+		return new ResponseEntity<>("Employeer Deleted Successfully", HttpStatus.OK);
+    }
+	
+	@PutMapping("/postStatus")//returns the employeers for status approve or reject 
+    public ResponseEntity<String> getEmployeers(@RequestParam("status") String status, @RequestParam("emailId") String email ) {
+	 
+		try {
+	        String message = adminService.updateStatus(status, email);
+	        return ResponseEntity.ok().body("Status Updated Successfully");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update status: " + e.getMessage());
+	    }
+    }
+	
+	@PostMapping("/createSubscription")//create subscription
+    public ResponseEntity<String> createSubscription(@RequestBody Subscription subscription) {
+	 
+		 try {
+		        String newSubscriptionMessage = adminService.createSubscription(subscription);
+		        return ResponseEntity.ok().body(newSubscriptionMessage);
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create subscription: " + e.getMessage());
+		    }
+    }
+	
+	@GetMapping("/getSubscriptions")//returns the subscription table
+	public ResponseEntity<List<Subscription>> getSubscriptions() {
+		 try {
+		        List<Subscription> subscriptions = adminService.getSubscription();
+		        return ResponseEntity.ok().body(subscriptions);
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+		    }
+	}
+	
+	@PutMapping("/updateSubscription")//updates the subscription Table 
+	public ResponseEntity<String> updateSubscription(@RequestBody Subscription subscription ) {
+		 try {
+		        String result = adminService.subscriptionUpdate(subscription);
+		        if ("Saved successfully".equals(result)) {
+		            return ResponseEntity.ok().body(result);
+		        } else {
+		            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found");
+		        }
+		    } catch (Exception e) {
+		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+		    }
+	}
+	@DeleteMapping("/deleteSubscription/{id}")//delete a subscription 
+	public ResponseEntity<String> DeleteSubscription(@PathVariable Long id ) {
+		try {
+	        String result = adminService.deleteSubscription(id);
+	        return new ResponseEntity<>(result, HttpStatus.OK);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>("An error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
+	}
+
+	
+	
+
+}
