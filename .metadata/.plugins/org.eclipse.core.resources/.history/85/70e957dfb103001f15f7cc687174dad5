@@ -1,0 +1,11 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
+class EmployeerServiceImplTest {
+
+	
+
+}

@@ -8,6 +8,8 @@ import java.util.Map;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,10 +52,16 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 	        } else {
 	            
 	            if (userExistence.getAppliedBy().equals(appliedBy) && userExistence.getJobId() == jobId) {
-	                return "You have already applied for this job";
+	                throw new RuntimeException("You have already applied for this job");
 	            }
 	        }
-	    } catch (Exception e) {
+	    }catch (RuntimeException e) {
+	    	String errorMessage = e.getMessage();
+	        
+	        
+	        return errorMessage;
+	    } 
+	    catch (Exception e) {
 	        e.printStackTrace();
 	        return "Failed to save job application due to an unexpected error";
 	    }
@@ -63,8 +71,16 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 
 	@Override
 	public String register(JobSeeker jobSeeker) {
-		jobSeekerRepo.save(jobSeeker);
-		return "SuccessFully saved JobSeeker";
+		 try {
+		        jobSeekerRepo.save(jobSeeker);
+		        return "Successfully saved JobSeeker";
+		    } catch (DataIntegrityViolationException e) {
+		        // Handle data integrity violation exceptions (e.g., duplicate entry)
+		        return "Failed to register: " + e.getMessage();
+		    } catch (Exception e) {
+		        // Handle other exceptions
+		        return "Failed to register due to an unexpected error: " + e.getMessage();
+		    }
 	}
 	@Override
 	public String login(JobSeeker jobSeeker) {
@@ -93,16 +109,16 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 	    }
 	}
 
-	@Override
-	public JobListing getIndividualJob(int jobId) {
-		try {
-	        JobListing job = jobRepository.findByjobId(jobId);
-	        return job;
-	    } catch (Exception e) {
-	        // Log the exception or handle it as needed
-	        throw new RuntimeException("Failed to retrieve job: " + e.getMessage());
-	    }
-	}
+//	@Override
+//	public JobListing getIndividualJob(int jobId) {
+//		try {
+//	        JobListing job = jobRepository.findByjobId(jobId);
+//	        return job;
+//	    } catch (Exception e) {
+//	        // Log the exception or handle it as needed
+//	        throw new RuntimeException("Failed to retrieve job: " + e.getMessage());
+//	    }
+//	}
 
 	@Override
 	public String updateProfile(JobSeeker jobSeeker) {
@@ -159,11 +175,20 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 	}
 
 
-	@Override
-	public String parseResume() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
+
+
+//	@Override
+//	public List<JobListing> getHighPayingJobs() {
+//		try {
+//	        int highpay = 20;
+//	        List<JobListing> HighPayingJobs = jobRepository.findByMinimumSalaryGreaterThanEqual(highpay);
+//	        return HighPayingJobs;
+//	    } catch (Exception e) {
+//	        // Log the exception or handle it as needed
+//	        throw new RuntimeException("Failed to retrieve high paying jobs: " + e.getMessage());
+//	    }
+//	}
 
 //	@Override
 //	public String parseResume() {

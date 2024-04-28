@@ -54,6 +54,9 @@ public class AdminServiceImpl implements AdminService {
 	public List<Employeer> getEmployeers() {
 		 try {
 		        List<Employeer> employees = employeerRepo.findAll();
+		        if (employees.isEmpty()) {
+		            throw new RuntimeException("No employees found");
+		        }
 		        return employees;
 		    } catch (Exception e) {
 		        // Log the exception or handle it as needed
@@ -90,16 +93,16 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public String updateStatus(String status,String emailId) {
-		 try {
-		        Employeer employeeToUpdate = employeerRepo.findByEmailId(emailId);
-		        if (employeeToUpdate != null) {
-		            employeeToUpdate.setStatus(status);
-		            employeerRepo.save(employeeToUpdate);
-		            return "Status Updated";
-		        } else {
-		            throw new RuntimeException("Employeer not found with email: " + emailId);
-		        }
-		    } catch (Exception e) {
+		try {
+	        Employeer employeeToUpdate = employeerRepo.findByEmailId(emailId);
+	        if (employeeToUpdate != null) {
+	            employeeToUpdate.setStatus(status);
+	            employeerRepo.save(employeeToUpdate);
+	            return "Status Updated";
+	        } else {
+	            throw new RuntimeException("Employeer not found with email: " + emailId);
+	        }
+	    }catch (Exception e) {
 		        // Log the exception or handle it as needed
 		        throw new RuntimeException("Failed to update status: " + e.getMessage());
 		    }
@@ -133,7 +136,7 @@ public class AdminServiceImpl implements AdminService {
 		            subscriptionRepo.save(sub);
 		            return "Saved successfully";
 		        } else {
-		            return "Not saved";
+		        	throw new RuntimeException("Failed to update subscription: ");
 		        }
 		    } catch (Exception e) {
 		        // Log the exception or handle it as needed
@@ -165,14 +168,23 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public String createSubscription(Subscription subscription) {
 		try {
-	        Subscription newSubscription = new Subscription();
-	        newSubscription.setSubscriptionType(subscription.getSubscriptionType());
-	        newSubscription.setDuration(subscription.getDuration());
-	        newSubscription.setNumberOfJobs(subscription.getNumberOfJobs());
-	        newSubscription.setPrice(subscription.getPrice());
-	        subscriptionRepo.save(newSubscription);
+				if(subscription!=null) {
+				subscriptionRepo.save(subscription);
+				}
+				else {
+		            throw new IllegalArgumentException("Failed to create subscription: Subscription object is null");
+		        }
+			 
+			
+//	        Subscription newSubscription = new Subscription();
+//	        newSubscription.setSubscriptionType(subscription.getSubscriptionType());
+//	        newSubscription.setDuration(subscription.getDuration());
+//	        newSubscription.setNumberOfJobs(subscription.getNumberOfJobs());
+//	        newSubscription.setPrice(subscription.getPrice());
+//	        subscriptionRepo.save(newSubscription);
+			
 	        return "Subscription Created";
-	    } catch (Exception e) {
+	    }  catch (Exception e) {
 	        // Log the exception or handle it as needed
 	        throw new RuntimeException("Failed to create subscription: " + e.getMessage());
 	    }

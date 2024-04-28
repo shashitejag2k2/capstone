@@ -1,0 +1,58 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.repository.JobRepository;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeerServiceImplTest {
+
+	@Mock
+    private JobRepository jobRepository;
+
+    @InjectMocks
+    private EmployeerServiceImpl employeerServiceImpl;
+    
+    @Test
+    public void testPostJobSuccess() {
+        JobListing jobListing = new JobListing();
+        jobListing.setJobTitle("Software Engineer");
+        jobListing.setJobPositioning("Full-time");
+        jobListing.setEmployeeType("Permanent");
+        jobListing.setJobDescription("Design, develop, and maintain software systems.");
+        jobListing.setKeySkills("Java, Spring, Hibernate, SQL");
+        jobListing.setMinimumWorkExperience(2);
+        jobListing.setMaximumWorkExperience(5);
+        jobListing.setLocation("New York");
+        jobListing.setJobMode("On-site");
+        jobListing.setEducationalQualification("Bachelor's degree in Computer Science");
+        jobListing.setCompanyName("ABC Company");
+        jobListing.setMinimumSalary(80000.0);
+        jobListing.setMaximumSalary(120000.0);
+        jobListing.setPostedBy("John Doe");
+        jobListing.setJobApplicationStatus("open");
+
+        when(jobRepository.save(jobListing)).thenReturn(jobListing);
+
+        String result = employeerServiceImpl.postJob(jobListing);
+
+        assertEquals("Job Posted", result);
+        verify(jobRepository, times(1)).save(jobListing);
+    }
+    
+    @Test
+    public void testPostJobNullObject() {
+        assertThrows(NullPointerException.class, () -> employeerServiceImpl.postJob(null));
+}
+
+}

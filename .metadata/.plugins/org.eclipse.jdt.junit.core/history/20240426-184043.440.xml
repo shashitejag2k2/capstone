@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="JobSeekerServiceImplTest" project="jobhunt" tests="1" started="1" failures="0" errors="0" ignored="0">
+  <testsuite name="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.892" displayname="JobSeekerServiceImplTest" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]">
+    <testcase name="testApplyJob_Success" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.892" displayname="testApplyJob_Success()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testApplyJob_Success()]"/>
+  </testsuite>
+</testrun>

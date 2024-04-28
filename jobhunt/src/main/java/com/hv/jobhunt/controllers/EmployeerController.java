@@ -24,7 +24,7 @@ import com.hv.jobhunt.Models.EmailRequest;
 import com.hv.jobhunt.Models.Employeer;
 import com.hv.jobhunt.Models.JobListing;
 import com.hv.jobhunt.Models.JobSeeker;
-
+import com.hv.jobhunt.Models.Subscription;
 import com.hv.jobhunt.repository.EmployeerRepo;
 import com.hv.jobhunt.repository.JobAppliedRepository;
 import com.hv.jobhunt.repository.JobRepository;
@@ -52,19 +52,15 @@ public class EmployeerController {
 	    @Autowired
 	    private JavaMailSender javaMailSender;
 	    
-	   
-	
-	
-
-		public void setEmployerService(EmployeerService employerService) {
+	   public void setEmployerService(EmployeerService employerService) {
 			this.employerService = employerService;
 		}
 
 	@PostMapping("/employeerRegister")
 	    public ResponseEntity<String> register(@RequestBody Employeer employeer) {
 	        try {
-	        	employerRepo.save(employeer);
-	            return new ResponseEntity<>("New Employeer Added Successfully", HttpStatus.CREATED);
+	        	String employeRegisterResult=employerService.register(employeer);
+	            return new ResponseEntity<>(employeRegisterResult, HttpStatus.CREATED);
 	        } catch (Exception e) {
 	            return new ResponseEntity<>("Failed to add Employeer: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	        }
@@ -72,16 +68,18 @@ public class EmployeerController {
 	 
 	 @PostMapping("/employeerLogin")
 	 @ApiOperation(value="Authenticate admin user",notes="authenticate admin user withprovided credentials")
-	 public ResponseEntity<Object> login(@RequestBody Employeer employeer) {
+	 public ResponseEntity<Employeer> login(@RequestBody Employeer employeer) {
 		 try {
-			 
-	            String loginResult = employerService.login(employeer.getEmailId(), employeer.getPassword());
-	            return ResponseEntity.ok().body(loginResult);
-	        }
-		 catch (IllegalArgumentException e) {
-		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email and password cannot be empty");
+		        Employeer loginResult = employerService.login(employeer.getEmailId(), employeer.getPassword());
+		        if ("Invalid email or password".equals(loginResult)) {
+		            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		        } else {
+		            return ResponseEntity.ok().body(loginResult);
+		        }
+		    } catch (IllegalArgumentException e) {
+		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		    } catch (RuntimeException e) {
-		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		    }
 		}
 	 
@@ -102,10 +100,13 @@ public class EmployeerController {
 		        List<JobListing> getJobs = employerService.getjobs(postedBy);
 		        return new ResponseEntity<>(getJobs, HttpStatus.OK);
 		        
-		    } catch (Exception e) {
+		    }
+		 		catch (Exception e) {
 		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 		                             .body(Collections.emptyList());
 		    }
+		 
+		 
 					             
 	    }
 	 
@@ -137,14 +138,13 @@ public class EmployeerController {
 	 
 	 @PostMapping("/deleteJob")//To place Reviewing
 	    public ResponseEntity<String> deleteJob(@RequestParam("jobId") int jobId) {
-	        try {
-	        	System.out.println("This is job id "+jobId);
-	        	employerService.deleteJob(jobId);
-	        	return new ResponseEntity<>("Successfully Deleted Job", HttpStatus.CREATED);
-
-	        } catch (Exception e) {
-	            return new ResponseEntity<>("Failed to Delete: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-	        }
+		 try {
+		        System.out.println("This is job id " + jobId);
+		        employerService.deleteJob(jobId);
+		        return new ResponseEntity<>("Successfully Deleted Job", HttpStatus.CREATED);
+		    } catch (Exception e) {
+		        return new ResponseEntity<>("Failed to Delete: " + e.getMessage(), HttpStatus.OK);
+		    }
 	    }
 	 
 	 @PutMapping("/updateJob")
@@ -161,16 +161,48 @@ public class EmployeerController {
 		 
 	 }
 	 
-	 @PutMapping("/updateJobApplicationStatus")
+	 @PutMapping("/updateJobApplicationStatus")//if job application status is open then method will set status as close
 	 public ResponseEntity<String> updateJobApplicationStatus(@RequestParam("jobId") int jobId){
 
 		 try {
 		        employerService.updateJobApplicationStatus(jobId);
-		        return new ResponseEntity<>("Successfully Updated Job", HttpStatus.CREATED);
+		        return new ResponseEntity<>("Successfully Updated", HttpStatus.CREATED);
 		    } catch (NoSuchElementException e) {
 		        return new ResponseEntity<>("Job not found with ID: " + jobId, HttpStatus.NOT_FOUND);
 		    } catch (Exception e) {
 		        return new ResponseEntity<>("Failed to Update: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+	    
+		 
+	 }
+	 
+	 @PutMapping("/updateEmployerSubscription")
+	 public ResponseEntity<String> updateEmployerSubscription(@RequestBody Employeer employee){
+
+		 try {
+			 System.out.println("from controller");
+		        employerService.updateemployerSubscription(employee);
+		        return new ResponseEntity<>("Successfully Updated Job", HttpStatus.CREATED);
+		    } catch (NoSuchElementException e) {
+		        return new ResponseEntity<>("Employeer not found with ID: " + employee.getName(), HttpStatus.NOT_FOUND);
+		    } catch (Exception e) {
+		        return new ResponseEntity<>("Failed to Update: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
+	    
+		 
+	 }
+	 
+	 @GetMapping("/getRemainingJobCount")
+	 public ResponseEntity<String> remainingJobCount(@RequestParam("subscriptionType") String subscriptionType){
+
+		 try {
+			 System.out.println("from controller");
+		       String remainingCount = employerService.remainingJobCount(subscriptionType);
+		        return new ResponseEntity<>(remainingCount, HttpStatus.CREATED);
+		    } catch (NoSuchElementException e) {
+		        return new ResponseEntity<>("Subscription not found ", HttpStatus.NOT_FOUND);
+		    } catch (Exception e) {
+		        return new ResponseEntity<>("Failed to Fetch Remaining Count: ", HttpStatus.INTERNAL_SERVER_ERROR);
 		    }
 	    
 		 
@@ -216,24 +248,9 @@ public class EmployeerController {
 		    }
 	 }
 	 
-	 @PostMapping("/send-html-email")
-	    public void sendHtmlEmail(@RequestBody EmailRequest emailRequest) {
-		 employerService.sendHtmlMessage(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getName());
-	    }
 	 
-//	 @PostMapping("/sendEmail")
-//	    public String sendEmail(
-//	    		@RequestParam("userName") String userName,
-//	            @RequestParam("password") String password,
-//	            @RequestParam("fromEmail") String fromEmail,
-//	            @RequestParam("toEmail") String toEmail,
-//	            @RequestParam("subject") String subject,
-//	            @RequestParam("body") String body) {
-//		 	
-//		 String s = employerService.sendEmail(userName,password,fromEmail, toEmail,subject,body);
-//		 	
-//		 return "Success";
-//	 }
+	 
+
 	 
 	 @PostMapping("/Mail")
 	 public ResponseEntity<String> sendEmail(

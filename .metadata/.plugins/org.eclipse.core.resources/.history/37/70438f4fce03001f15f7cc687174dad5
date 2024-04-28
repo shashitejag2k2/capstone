@@ -1,0 +1,44 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+@ExtendWith(MockitoExtension.class)
+class JobSeekerServiceImplTest {
+	
+	@Mock
+	private JobAppliedRepository jobAppliedRepository;
+	
+	@InjectMocks
+    private JobSeekerServiceImpl jobSeekerServiceImpl;
+
+	@Test
+    void testApplyJob_Success() {
+        // Test case for successful job application
+
+        // Mock input data
+        AppliedJobs jobApplication = new AppliedJobs();
+        jobApplication.setAppliedBy("user@example.com");
+        jobApplication.setJobId(123);
+
+        // Mock repository behavior
+        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(null);
+
+        // Calling the service method
+        String result = yourService.applyJob(jobApplication);
+
+        // Assertions
+        assertEquals("Job application saved successfully", result);
+
+        // Verify interactions
+        verify(jobAppliedRepo, times(1)).save(jobApplication);
+    }
+}

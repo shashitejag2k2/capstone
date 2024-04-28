@@ -25,6 +25,7 @@ import com.hv.jobhunt.Models.Employeer;
 import com.hv.jobhunt.Models.JobListing;
 import com.hv.jobhunt.Models.JobSeeker;
 import com.hv.jobhunt.Models.Subscription;
+import com.hv.jobhunt.exception.UserNotOnboardedException;
 import com.hv.jobhunt.repository.EmployeerRepo;
 import com.hv.jobhunt.repository.JobAppliedRepository;
 import com.hv.jobhunt.repository.JobRepository;
@@ -50,8 +51,8 @@ public class EmployeerServiceImpl implements EmployeerService {
 	@Autowired
 	private EmployeerRepo employeerRepo; 
 	
-	@Autowired
-	private JobRepository jobListingRepositor;
+//	@Autowired
+//	private JobRepository jobListingRepositor;
 	
 	@Autowired
 	private JobAppliedRepository jobAppliedRepository;
@@ -77,28 +78,74 @@ public class EmployeerServiceImpl implements EmployeerService {
 //	        
 //	    }
 	    
+	 	@Override
+		public String register(Employeer employee) {
+		 
+	 		try { 
+	 	        boolean exist = employeerRepo.existsByEmailId(employee.getEmailId());
+	 	        if (exist) {
+	 	        	System.out.println("bool");
+	 	            return "You have already registered. Please try to log in.";
+	 	        } else {
+	 	            employee.setStatus("pending");
+	 	            employee.setSubscriptionType("Basic");
+	 	            employeerRepo.save(employee);
+	 	            return "Successfully registered";
+	 	        }
+	 	    } catch (Exception e) {
+	 	        // Log the exception for debugging purposes
+	 	        e.printStackTrace();
+	 	        return "Failed to register due to an unexpected error.";
+	 	    }
+		
+			
+		}
 	
 	
 	@Override
-	public String login(String emailId, String password) {
+	public Employeer login(String emailId, String password) {
 		if (emailId == null || password == null || emailId.isEmpty() || password.isEmpty()) {
 	        throw new IllegalArgumentException("Email and password cannot be empty");
 	    }
-
-        Employeer employerUser = employeerRepo.findByEmailIdAndPassword(emailId,password);
-        if (employerUser != null && employerUser.getPassword().equals(password)) {
-            return "Employer login successful";
-        } else {
-            throw new RuntimeException("Invalid email or password");
-        }
+	    
+	    Employeer employerUser = employeerRepo.findByEmailIdAndPassword(emailId, password);
+	    
+	    if (employerUser != null && employerUser.getEmailId().equals(emailId) && employerUser.getPassword().equals(password)) {
+	        String status = employerUser.getStatus();
+	        if ("pending".equals(status)) {
+	        	throw new RuntimeException("You are not onboarded yet");
+	        } else if ("reject".equals(status)) {
+	            throw new RuntimeException("Your request has been rejected by the admin");
+	        } else {
+	            return employerUser;
+	        }
+	    } else {
+	        throw new RuntimeException("Invalid email or password");
 	    }
+
+}
+	
+
+	
+	
 	
 	@Override
 	public String postJob(JobListing postJob) {
-		postJob.setJobApplicationStatus("open");
-		jobRepository.save(postJob);
-		return "job Posted";
+		if (postJob == null) {
+	        return "Failed to post job due to invalid job listing.";
+	    }
+	    try {
+	    	
+	        postJob.setJobApplicationStatus("open");
+	        jobRepository.save(postJob);
+	        return "Job Posted";
+	    } catch (Exception e) {
+	        // Log the exception for debugging purposes
+	        e.printStackTrace();
+	        return "Failed to post job due to an unexpected error";
+	    }
 	}
+
 
 	
 
@@ -107,7 +154,7 @@ public class EmployeerServiceImpl implements EmployeerService {
 	@Override
 	public List<JobListing> getjobs(String email) {
 		try {
-	        return jobListingRepositor.findByPostedBy(email);
+	        return jobRepository.findByPostedBy(email);
 	    } catch (Exception e) {
 	        // Log the exception or handle it according to your application's requirements
 	        e.printStackTrace();
@@ -149,29 +196,24 @@ public class EmployeerServiceImpl implements EmployeerService {
 	@Override
 	@Transactional
 	public String deleteJob(int jobId) {
-		try {
-			JobListing job = jobListingRepositor.findByjobId(jobId);
-			
-			 if (job != null && job.getJobTitle() != null) {
-			        jobListingRepositor.deleteByjobId(jobId);
-			        return "Record Deleted";
-			    } else {
-			        
-			        throw new IllegalArgumentException("Job with ID " + jobId + " does not exist or its title is null");
+		
+			 try {
+			        JobListing job = jobRepository.findByjobId(jobId);
+			        if (job != null && job.getJobTitle() != null) {
+			        	jobRepository.deleteByjobId(jobId);
+			            return "Record Deleted";
+			        } else {
+			            throw new IllegalArgumentException("Job with ID " + jobId + " does not exist or its title is null");
+			        }
+			    } catch (Exception e) {
+			        throw new RuntimeException("Failed to delete job: " + e.getMessage());
 			    }
-        } catch (EntityNotFoundException e) {
-            
-            throw new IllegalArgumentException("Job with ID " + jobId + " does not exist");
-        } catch (Exception e) {
-            
-            throw new RuntimeException("Failed to delete job: " + e.getMessage());
-        }
 	}
 
 	@Override
 	public String updateJob(JobListing jobListing) {
 		int jobId=jobListing.getJobId();
-		JobListing jobDetails = jobListingRepositor.findByjobId(jobId);
+		JobListing jobDetails = jobRepository.findByjobId(jobId);
 		
 		if(jobDetails!=null)  {
 			jobDetails.setCompanyName(jobListing.getCompanyName());
@@ -180,7 +222,7 @@ public class EmployeerServiceImpl implements EmployeerService {
 			jobDetails.setJobDescription(jobListing.getJobDescription());
 			jobDetails.setJobId(jobListing.getJobId());
 			jobDetails.setJobMode(jobListing.getJobMode());
-			jobDetails.setJobPositioning(jobListing.getJobPositioning());
+			
 			jobDetails.setJobTitle(jobListing.getJobTitle());
 			jobDetails.setKeySkills(jobListing.getKeySkills());
 			jobDetails.setLocation(jobListing.getLocation());
@@ -189,7 +231,7 @@ public class EmployeerServiceImpl implements EmployeerService {
 			jobDetails.setMinimumSalary(jobListing.getMinimumSalary());
 			jobDetails.setMaximumWorkExperience(jobListing.getMaximumWorkExperience());
 			jobDetails.setPostedBy(jobListing.getPostedBy());
-			jobListingRepositor.save(jobDetails);
+			jobRepository.save(jobDetails);
 			return "updated Successfully";
 		}
 		else {
@@ -242,28 +284,50 @@ public class EmployeerServiceImpl implements EmployeerService {
 	        throw new RuntimeException("Failed to get job seekers by job: " + e.getMessage());
 	    }
 	}
+	
+	@Override
+	public String updateemployerSubscription(Employeer employee) {
+		try {
+			System.out.println("from employerServiceimpl");
+	        String email = employee.getEmailId();
+	        Employeer emp = employeerRepo.findByEmailId(email);
+
+	        if (emp == null) {
+	            return "Employee with email " + email + " not found";
+	        }
+
+	        System.out.println("Subscription: " + emp.getSubscriptionType());
+	        emp.setSubscriptionType(employee.getSubscriptionType());
+	        employeerRepo.save(emp);
+
+	        return "Successfully updated subscription";
+	    } catch (RuntimeException e) {
+	        // Handle any exceptions that occur during the process
+	        e.printStackTrace(); // You can log the exception or handle it based on your application's requirements
+	        return "Failed to update subscription: " + e.getMessage(); // Return an error message
+	    }
+	}
 
 	@Override
 	public Map<String, String> getCount(String employeerMail) {
 		  try {
 		        List<JobListing> jobs = getjobs(employeerMail);
+		        if(employeerMail==null) {
+		        	throw new IllegalArgumentException("employer Mail not found");
+		        }
 		        Employeer employeerDetails =  employeerRepo.findByEmailId(employeerMail);
-		        Date date = employeerDetails.getSubscriptionExprirationDate();
-		       // Subscription sub = subscriptionRepo.findNoOfJobsBySubscriptionType(Subscription);
-		        
-		        
+		        //Date date = employeerDetails.getSubscriptionExprirationDate();
+		       
 		        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		        String formattedDate = dateFormat.format(date);
-		        System.out.println("Formatted Date: " + formattedDate);
+		        //String formattedDate = dateFormat.format(date);
+		        //System.out.println("Formatted Date: " + formattedDate);
 		        int jobCount = jobs.size();
-		        //int no_of_jobs = sub.getNumberOfJobs();
-//		        int remainingJobs = (no_of_jobs)-(jobCount);
-//		        String remaining = Integer.toString(remainingJobs);
+		        
 		        String dateStirng = Integer.toString(jobCount);
 		        Map<String, String> countMap = new HashMap<>();
 		        countMap.put("jobCount", dateStirng);
-		        countMap.put("SubscriptionExprirationDate",formattedDate);
-		        
+		        //countMap.put("SubscriptionExprirationDate",formattedDate);
+		        System.out.println("From getcount"+jobCount);
 		        return countMap;
 		    } catch (Exception e) {
 		        // Log the exception or handle it as needed
@@ -272,33 +336,60 @@ public class EmployeerServiceImpl implements EmployeerService {
 	}
 
 
-
-
-	@Override
-	public void sendHtmlMessage(String to, String subject, String name) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-
-	@Override
-	public void sendVerificationEmail(String to, String verificationLink) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-
 	@Override
 	public String getSubscriptionType(String employeerMail) {
-		Employeer subscription = employeerRepo.findByEmailId(employeerMail);
-		String subscriptionType= subscription.getSubscriptionType();
-		Date subscription_Expiry_Date = subscription.getSubscriptionExprirationDate();
-		System.out.println(subscription);
-		return subscriptionType;
+		try {
+			System.out.println("from getSubscription"+employeerMail);
+	        Employeer subscription = employeerRepo.findByEmailId(employeerMail);
+
+	        if (subscription.getSubscriptionType() == null) {
+	            throw new IllegalArgumentException("Employer with email " + employeerMail + " not found");
+	        }
+	        System.out.println("before going to scubscription Type "+subscription);
+	        String subscriptionType = subscription.getSubscriptionType();
+	        Date subscription_Expiry_Date = subscription.getSubscriptionExprirationDate();
+	        System.out.println("This is scubscription Type "+subscriptionType);
+	       
+	        return subscriptionType;
+	    } catch (IllegalArgumentException e) {
+	        e.printStackTrace(); 
+	        return "Employer with email " + employeerMail + " not found";
+	    } catch (Exception e) {
+	        
+	        e.printStackTrace(); // Log the exception stack trace
+	        
+	        return "Failed to get subscription type: " + e.getMessage();
+	    }
+	}
+	
+	@Override
+	public String remainingJobCount(String subscriptionType) {
+
+	   
+		try {
+			//gets the noOfjobs for the subscription
+	        Subscription sub = subscriptionRepo.findNoOfJobsBySubscriptionType(subscriptionType);
+	        
+	        if (sub == null) {
+	            throw new IllegalArgumentException("Subscription not found for subscription type: " + subscriptionType);
+	        }
+	        
+	        int remainingJobs = sub.getNumberOfJobs();
+	        
+	        return String.valueOf(remainingJobs);
+	    } catch (IllegalArgumentException e) {
+	        // Log the exception or handle it based on your application's requirements
+	        e.printStackTrace(); // Log the exception stack trace
+	        
+	        // Return an appropriate error message
+	        return "Subscription not found for subscription type: " + subscriptionType;
+	    } catch (Exception e) {
+	        // Log the exception or handle it based on your application's requirements
+	        e.printStackTrace(); // Log the exception stack trace
+	        
+	        // Return an appropriate error message
+	        return "Failed to get remaining job count: " + e.getMessage();
+	    }
 	}
 
 
@@ -319,15 +410,22 @@ public class EmployeerServiceImpl implements EmployeerService {
 		    helper.setSubject("From springBoot");
 		    helper.setTo(jobseekerMailId);
 		    Employeer employee = employeerRepo.findByEmailId(employeerEmailId);
+		    if (employee == null) {
+	            throw new IllegalArgumentException("Employer with email " + employeerEmailId + " not found");
+	        }
 		    String company = employee.getCompanyName();
 		    String emailContent = getEmailContent(employeerEmailId,company,username,status);
 		    ///add logic for fetching company Name from employeerEmialID
 		    helper.setText(emailContent, true);
 		    javaMailSender.send(mimeMessage);
 		    return "Mail sent successfully";
-		} catch (Exception e) {
-		    return "Error while Sending Mail";
-		}
+		}catch (IllegalArgumentException e) {
+	        e.printStackTrace(); // Log the exception stack trace
+	        return "Employer with email " + employeerEmailId + " not found";
+	    } catch (Exception e) {
+	        e.printStackTrace(); // Log the exception stack trace
+	        return "Error while Sending Mail" ;
+	    }
 		
 		}
 	
@@ -339,6 +437,17 @@ public class EmployeerServiceImpl implements EmployeerService {
 		Template template = emailConfig.getTemplate(status+".html");
 	    return FreeMarkerTemplateUtils.processTemplateIntoString(template,model);
 	}
+
+
+
+
+	
+
+
+
+	
+
+	
 
 
 

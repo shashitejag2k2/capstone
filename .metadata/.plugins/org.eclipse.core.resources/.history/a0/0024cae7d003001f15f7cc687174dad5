@@ -1,0 +1,98 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+@ExtendWith(MockitoExtension.class)
+class JobSeekerServiceImplTest {
+	
+	@Mock
+	private JobAppliedRepository jobAppliedRepository;
+	
+	@InjectMocks
+    private JobSeekerServiceImpl jobSeekerServiceImpl;
+
+	@Test
+    void testApplyJob_Success() {
+        // Test case for successful job application
+
+        // Mock input data
+        AppliedJobs jobApplication = new AppliedJobs();
+        jobApplication.setAppliedBy("user@example.com");
+        jobApplication.setJobId(123);
+
+        // Mock repository behavior
+        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(null);
+
+        // Calling the service method
+        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+        // Assertions
+        assertEquals("Job application saved successfully", result);
+
+        // Verify interactions
+        verify(jobAppliedRepository, times(1)).save(jobApplication);
+    }
+	
+	@Test
+    void testApplyJob_AlreadyApplied() {
+        // Test case for when the user has already applied for the job
+
+        // Mock input data
+        AppliedJobs jobApplication = new AppliedJobs();
+        jobApplication.setAppliedBy("user@example.com");
+        jobApplication.setJobId(123);
+        jobApplication.setPostedBy("employer@example.com");
+        jobApplication.setJobTitle("Software Developer");
+        jobApplication.setStatus("pending");
+
+        // Mock repository behavior
+        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(jobApplication);
+
+        // Calling the service method
+        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+        // Assertions
+        assertEquals("You have already applied for this job", result);
+
+        // Verify interactions
+        verify(jobAppliedRepository, never()).save(any());
+    }
+	
+	 @Test
+	    void testApplyJob_Exception() {
+	        // Test case for when an unexpected error occurs during job application
+
+	        // Mock input data
+	        AppliedJobs jobApplication = new AppliedJobs();
+	        jobApplication.setAppliedBy("user@example.com");
+	        jobApplication.setJobId(123);
+	        jobApplication.setPostedBy("employer@example.com");
+	        jobApplication.setJobTitle("Software Developer");
+	        jobApplication.setStatus("pending");
+
+	        // Mock repository behavior to simulate an exception
+	        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenThrow(new RuntimeException("Test exception"));
+
+	        // Calling the service method
+	        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+	        // Assertions
+	        assertEquals("Failed to save job application due to an unexpected error", result);
+
+	        // Verify interactions
+	        verify(jobAppliedRepository, never()).save(any());
+	    }
+}

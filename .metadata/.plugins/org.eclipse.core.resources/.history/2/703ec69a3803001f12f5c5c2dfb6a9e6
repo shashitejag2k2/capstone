@@ -1,0 +1,84 @@
+package com.hv.jobhunt.controllers;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.services.AdminService;
+
+class AdminControllerTest {
+	
+	 @InjectMocks
+	    private AdminController adminController;
+
+	    @Mock
+	    private AdminService adminService;
+
+	    
+
+	    @Test
+	    public void testGetEmployes() throws Exception {
+	        // Arrange
+	        List<Employeer> expectedEmployees = new ArrayList<>();
+	        Employeer employeer1 = new Employeer();
+	        employeer1.setEmployeeId(1);
+	        employeer1.setName("shashi");
+	        employeer1.setEmailId("shashi@email.com");
+	        employeer1.setPassword("password123");
+	        employeer1.setCompanyName("Hitachi vantara");
+	        employeer1.setSubscriptionType("Premium");
+	        employeer1.setSubscriptionExprirationDate(new Date());
+	        employeer1.setStatus("pending");
+
+	        Employeer employeer2 = new Employeer();
+	        employeer2.setEmployeeId(2);
+	        employeer2.setName("Teja");
+	        employeer2.setEmailId("Teja@email.com");
+	        employeer2.setPassword("d456");
+	        employeer2.setCompanyName("cognizant");
+	        employeer2.setSubscriptionType("Basic");
+	        employeer2.setSubscriptionExprirationDate(new Date());
+	        employeer2.setStatus("pending");
+
+	        expectedEmployees.add(employeer1);
+	        expectedEmployees.add(employeer2);
+
+	        when(adminService.getEmployeers()).thenReturn(expectedEmployees);
+
+	        // Act
+	        ResponseEntity<List<Employeer>> response = adminController.getEmployes();
+
+	        // Assert
+	        assertEquals(HttpStatus.OK, response.getStatusCode());
+	        assertIterableEquals(expectedEmployees, response.getBody());
+	    }
+	    
+	    
+
+	    @Test
+	    public void testGetEmployes_ServiceThrowsException() throws Exception {
+	        // Arrange
+	        when(adminService.getEmployeers()).thenThrow(new RuntimeException("Error getting employes"));
+
+	        // Act
+	        ResponseEntity<List<Employeer>> response = adminController.getEmployes();
+
+	        // Assert
+	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	        assertEquals(null, response.getBody());
+	    }}
+
+	
+
+}

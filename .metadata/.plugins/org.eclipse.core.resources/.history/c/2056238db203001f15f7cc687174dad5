@@ -1,0 +1,22 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.repository.JobRepository;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeerServiceImplTest {
+
+	@Mock
+    private JobRepository jobRepository;
+
+    @InjectMocks
+    private EmployeerService EmployeerServiceImpl;
+
+}

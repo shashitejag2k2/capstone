@@ -1,0 +1,74 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.controllers.AdminController;
+import com.hv.jobhunt.repository.EmployeerRepo;
+
+@ExtendWith(MockitoExtension.class)
+class AdminServiceImplTest {
+	
+	@InjectMocks
+    private AdminServiceImpl adminServiceImpl;
+	
+	@Mock
+    private EmployeerRepo employeerRepo;
+	
+	@Test
+    public void testGetEmployeersSuccess() {
+        // Mocked list of employees
+        List<Employeer> employees = new ArrayList<>();
+        // Add mocked employees to the list
+        // Example:
+        // employees.add(new Employeer(/* constructor parameters */));
+
+        // Mock the behavior of employeerRepo.findAll() to return employees
+        when(employeerRepo.findAll()).thenReturn(employees);
+
+        // Call the service method
+        List<Employeer> result = adminServiceImpl.getEmployeers();
+
+        // Verify that the result matches the mocked list of employees
+        assertEquals(employees, result);
+    }
+
+    @Test
+    public void testGetEmployeersNoEmployeesFound() {
+        // Mock the behavior of employeerRepo.findAll() to return an empty list
+        when(employeerRepo.findAll()).thenReturn(new ArrayList<>());
+
+        // Verify that calling the service method throws a RuntimeException with the correct message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getEmployeers();
+        });
+        assertEquals("No employees found", exception.getMessage());
+    }
+
+    @Test
+    public void testGetEmployeersFailure() {
+        // Mock the behavior of employeerRepo.findAll() to throw an exception
+        when(employeerRepo.findAll()).thenThrow(new RuntimeException("Error fetching employees"));
+
+        // Verify that calling the service method throws a RuntimeException with the correct message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getEmployeers();
+        });
+        assertEquals("Failed to retrieve employees: Error fetching employees", exception.getMessage());
+    }
+	
+
+	
+
+}

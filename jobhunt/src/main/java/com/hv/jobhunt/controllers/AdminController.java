@@ -52,22 +52,27 @@ public class AdminController {
 	
 	 try {
 	        String loginResult = adminService.login(admin);
+	        if(loginResult.equals("Login successful")) {
+	        	return ResponseEntity.ok().body(loginResult);
+	        }else {
+	        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginResult);
+	        }
 
-	        return new ResponseEntity<>(loginResult, HttpStatus.OK);
+	        
 	    } catch (Exception e) {
 	        return new ResponseEntity<>("Internal Server Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
     }
 	
 	@GetMapping("/getEmployes")
-    public ResponseEntity<Iterable<Employeer>> getEmployes() {
-		 try {
-		        Iterable<Employeer> results = adminService.getEmployeers();
-		        return ResponseEntity.ok().body(results);
-		    } catch (Exception e) {
-		        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-		    }
-    }
+	public ResponseEntity<List<Employeer>> getEmployes() {
+	    try {
+	        List<Employeer> results = adminService.getEmployeers();
+	        return ResponseEntity.ok().body(results);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
+	}
 	
 	@GetMapping("/getIndividualEmployeer")
     public ResponseEntity<Employeer> getIndividualEmploye(@RequestParam("EmpId") int Emp_id) {
@@ -128,6 +133,7 @@ public class AdminController {
 	@GetMapping("/getSubscriptions")//returns the subscription table
 	public ResponseEntity<List<Subscription>> getSubscriptions() {
 		 try {
+			 	
 		        List<Subscription> subscriptions = adminService.getSubscription();
 		        return ResponseEntity.ok().body(subscriptions);
 		    } catch (Exception e) {
@@ -141,6 +147,7 @@ public class AdminController {
 		        String result = adminService.subscriptionUpdate(subscription);
 		        if ("Saved successfully".equals(result)) {
 		            return ResponseEntity.ok().body(result);
+		            
 		        } else {
 		            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subscription not found");
 		        }

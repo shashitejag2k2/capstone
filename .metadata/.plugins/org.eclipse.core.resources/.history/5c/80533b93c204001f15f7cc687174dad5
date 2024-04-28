@@ -1,0 +1,235 @@
+package com.hv.jobhunt.serviceImpl;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.Models.JobSeeker;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+import com.hv.jobhunt.repository.JobRepository;
+import com.hv.jobhunt.repository.JobSeekerRepo;
+import com.hv.jobhunt.services.JobSeekerService;
+
+@Service
+public class JobSeekerServiceImpl implements JobSeekerService {
+	
+	@Autowired
+	private JobSeekerRepo jobSeekerRepo;
+	
+	@Autowired 
+	private JobAppliedRepository jobAppliedRepo;
+	
+	@Autowired
+	private JobRepository jobRepository;
+	
+	
+
+
+	@Override
+	public String applyJob(AppliedJobs jobApplication) {
+	    try {
+	        String appliedBy = jobApplication.getAppliedBy();
+	        int jobId = jobApplication.getJobId();
+	        AppliedJobs userExistence = jobAppliedRepo.findByAppliedByAndJobId(appliedBy, jobId);
+
+	        if (userExistence == null) {
+	            jobApplication.setStatus("pending");
+	            jobAppliedRepo.save(jobApplication);
+	            return "Job application saved successfully";
+	        } else {
+	            
+	            if (userExistence.getAppliedBy().equals(appliedBy) && userExistence.getJobId() == jobId) {
+	                return "You have already applied for this job";
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "Failed to save job application due to an unexpected error";
+	    }
+	    return "Failed to save job application";
+	}
+
+
+	@Override
+	public String register(JobSeeker jobSeeker) {
+		jobSeekerRepo.save(jobSeeker);
+		return "SuccessFully saved JobSeeker";
+	}
+	@Override
+	public String login(JobSeeker jobSeeker) {
+		  try {
+		        String email = jobSeeker.getEmailId();
+		        String password = jobSeeker.getPassword();
+		        JobSeeker seeker = jobSeekerRepo.findByEmailIdAndPassword(email, password);
+		        if (seeker != null && password.equals(seeker.getPassword())) {
+		            return "User login successful";
+		        }
+		        return "Invalid credentials";
+		    } catch (Exception e) {
+		        
+		        throw new RuntimeException("Failed to login: " + e.getMessage());
+		    }
+	}
+
+	@Override
+	public List<JobListing> getjobs() {
+		try {
+	        List<JobListing> alljobs = jobRepository.findAll();
+	        return alljobs;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to retrieve job listings: " + e.getMessage());
+	    }
+	}
+
+	@Override
+	public JobListing getIndividualJob(int jobId) {
+		try {
+	        JobListing job = jobRepository.findByjobId(jobId);
+	        return job;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to retrieve job: " + e.getMessage());
+	    }
+	}
+
+	@Override
+	public String updateProfile(JobSeeker jobSeeker) {
+		 try {
+		        int id = jobSeeker.getJobSeekerId();
+		        System.out.println("Job seeker id " + id);
+		        JobSeeker existingJobSeeker = jobSeekerRepo.findByJobSeekerId(id);
+		        if (existingJobSeeker != null) {
+		            existingJobSeeker.setCollegeName(jobSeeker.getCollegeName());
+		            existingJobSeeker.setExperience(jobSeeker.getExperience());
+		            existingJobSeeker.setSkills(jobSeeker.getSkills());
+		            jobSeekerRepo.save(existingJobSeeker);
+		            return "Profile Updated successfully";
+		        } else {
+		            return "Not saved";
+		        }
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to Update Profile: " + e.getMessage());
+		    }
+	}
+
+	@Override
+	public List<AppliedJobs> getJobAppliedDetails(String appliedBy) {
+		try {
+	        List<AppliedJobs> jobApplications = jobAppliedRepo.findByAppliedBy(appliedBy);
+	        return jobApplications;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to retrieve job applications: " + e.getMessage());
+	    }
+	}
+
+	@Override
+	public List<JobListing> searchJobListings(String keyword) {
+		 try {
+			 String searchKeyword = "%" + keyword + "%";
+			 return jobRepository.findByJobTitleContainingIgnoreCase(keyword);
+		        
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to search for job listings: " + e.getMessage());
+		    }
+	}
+
+	@Override
+	public JobSeeker getJobSeekerDetails(String email) {
+		 try {
+		        return jobSeekerRepo.findByEmailId(email);
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to retrieve job seeker details: " + e.getMessage());
+		    }
+	}
+
+
+	@Override
+	public String parseResume() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<JobListing> getHighPayingJobs() {
+		
+		int highpay = 20;
+		List<JobListing> HighPayingJobs = jobRepository.findByMinimumSalaryGreaterThanEqual(highpay);
+		return HighPayingJobs;
+	}
+
+//	@Override
+//	public String parseResume() {
+//		 try {
+//	            // Load the PDF resume file
+//			 	
+//	            File file = new File("C:\\\\project\\\\Resume.pdf");
+//	            PDDocument document = PDDocument.load(file);
+//
+//	            // Create PDFTextStripper
+//	            PDFTextStripper stripper = new PDFTextStripper();
+//
+//	            // Extract text from PDF
+//	            String text = stripper.getText(document);
+//	            
+//	            
+//	            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//
+//	            String json = gson.toJson(text);
+//	            
+//	            
+//	            System.out.println(json);
+//	            
+//	            // Parse extracted text and extract relevant information
+//	            Map<String, String> resumeData = parseResume(text);
+//	            
+//
+//	            // Convert extracted data to JSON format
+//	            ObjectMapper objectMapper = new ObjectMapper();
+////	            String json = objectMapper.writeValueAsString(resumeData);
+//
+//	            // Print the JSON data
+//	            
+//
+//	            // Close the document
+//	            document.close();
+//	        } catch (IOException e) {
+//	            e.printStackTrace();
+//	        }
+//	    
+//		return null;
+//	}
+//	 private static Map<String, String> parseResume(String text) {
+//	        // Implement your parsing logic here
+//	        // For demonstration purposes, let's assume some sample data
+//	        Map<String, String> resumeData = new HashMap<>();
+//	        resumeData.put("Name", "John Doe");
+//	        resumeData.put("Email", "john.doe@example.com");
+//	        resumeData.put("Phone", "+1234567890");
+//	        resumeData.put("Education", "Bachelor's in Computer Science");
+//	        resumeData.put("Experience", "Software Engineer");
+//
+//	        return resumeData;
+//	    }
+	
+	
+
+	
+
+}

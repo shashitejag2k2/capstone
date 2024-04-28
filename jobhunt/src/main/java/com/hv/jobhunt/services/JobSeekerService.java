@@ -18,7 +18,7 @@ public interface JobSeekerService {
 	
 	List<JobListing> getjobs();
 	
-	JobListing getIndividualJob(int jobId);
+//	JobListing getIndividualJob(int jobId);
 	
 	List<AppliedJobs> getJobAppliedDetails(String email);
 	
@@ -27,7 +27,8 @@ public interface JobSeekerService {
 
 	JobSeeker getJobSeekerDetails(String email);
 	
-	String parseResume();
+//	String parseResume();
 	
+//	List<JobListing>getHighPayingJobs();
 	
 }

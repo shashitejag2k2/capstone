@@ -1,0 +1,420 @@
+package com.hv.jobhunt.serviceImpl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import freemarker.template.Template;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
+import org.springframework.stereotype.Service;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.Models.JobSeeker;
+import com.hv.jobhunt.Models.Subscription;
+import com.hv.jobhunt.repository.EmployeerRepo;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+import com.hv.jobhunt.repository.JobRepository;
+import com.hv.jobhunt.repository.JobSeekerRepo;
+import com.hv.jobhunt.repository.SubscriptionRepo;
+import com.hv.jobhunt.services.EmployeerService;
+
+//import jakarta.mail.internet.MimeMessage;
+//import jakarta.persistence.EntityNotFoundException;
+//import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+
+import javax.mail.internet.MimeMessage;
+import javax.persistence.*;
+import javax.transaction.Transactional;
+
+
+@Service
+public class EmployeerServiceImpl implements EmployeerService {
+	
+	@Autowired
+	private EmployeerRepo employeerRepo; 
+	
+	@Autowired
+	private JobRepository jobListingRepositor;
+	
+	@Autowired
+	private JobAppliedRepository jobAppliedRepository;
+	
+	@Autowired
+	private JobRepository jobRepository;
+	
+	@Autowired
+	private JobSeekerRepo jobSeekerRepo;
+	
+	@Autowired
+	private JavaMailSender javaMailSender;
+	
+	@Autowired
+	private SubscriptionRepo subscriptionRepo;
+
+	 @Autowired
+	 @Qualifier("emailConfigBean")
+	 private Configuration emailConfig;
+//	 	
+//	 public EmployeerServiceImpl(JavaMailSender javaMailSender) {
+//	        this.javaMailSender = javaMailSender;
+//	        
+//	    }
+	    
+	 	@Override
+		public String register(Employeer employee) {
+		 
+	 		try {
+	 	        boolean exist = employeerRepo.existsByEmailId(employee.getEmailId());
+	 	        if (exist) {
+	 	        	System.out.println("bool");
+	 	            return "You have already registered. Please try to log in.";
+	 	        } else {
+	 	            employee.setStatus("pending");
+	 	            employeerRepo.save(employee);
+	 	            return "Successfully registered";
+	 	        }
+	 	    } catch (Exception e) {
+	 	        // Log the exception for debugging purposes
+	 	        e.printStackTrace();
+	 	        return "Failed to register due to an unexpected error.";
+	 	    }
+		
+			
+		}
+	
+	
+	@Override
+	public String login(String emailId, String password) {
+	    if (emailId == null || password == null || emailId.isEmpty() || password.isEmpty()) {
+	        throw new IllegalArgumentException("Email and password cannot be empty");
+	    }
+	    
+	    Employeer employerUser = employeerRepo.findByEmailIdAndPassword(emailId,password);
+	    
+	    if (employerUser == null) {
+	        throw new RuntimeException("Invalid email");
+	    }
+	    
+	    String status = employerUser.getStatus();
+	    if ("pending".equals(status)) {
+	        return "You are not onboarded yet";
+	    } else if ("rejected".equals(status)) {
+	        return "Your request has been rejected by the admin";
+	    } else {
+	        if (employerUser.getPassword().equals(password)) {
+	            return "Employer login successful";
+	        } else {
+	            throw new RuntimeException("Invalid password");
+	        }
+	    }
+	}
+
+	
+	
+	
+	@Override
+	public String postJob(JobListing postJob) {
+		postJob.setJobApplicationStatus("open");
+		jobRepository.save(postJob);
+		return "job Posted";
+	}
+
+	
+
+
+
+	@Override
+	public List<JobListing> getjobs(String email) {
+		try {
+	        return jobListingRepositor.findByPostedBy(email);
+	    } catch (Exception e) {
+	        // Log the exception or handle it according to your application's requirements
+	        e.printStackTrace();
+	        // You can also throw a custom exception or return an empty list, depending on your needs
+	        // throw new RuntimeException("Failed to retrieve job listings", e);
+	        return Collections.emptyList(); // Return an empty list
+	    }
+	}
+
+	@Override
+	public List<AppliedJobs> getjobSeekers(String email) {
+		try {
+            return jobAppliedRepository.findByPostedBy(email);
+        } catch (Exception e) {
+            // Log the exception or handle it as needed
+            throw new RuntimeException("Error retrieving job seekers");
+        }
+	}
+
+	@Override
+	public String updateStatus(AppliedJobs jobApplication) {
+		try {
+            String appliedBy = jobApplication.getAppliedBy();
+            int jobId = jobApplication.getJobId();
+           
+            AppliedJobs existingJobApplied = jobAppliedRepository.findByAppliedByAndJobId(appliedBy, jobId);
+
+            
+            existingJobApplied.setStatus(jobApplication.getStatus());
+            
+            jobAppliedRepository.save(existingJobApplied);
+            return "Saved successfully";
+        } catch (Exception e) {
+            // Log the exception or handle it as needed
+            throw new RuntimeException("Failed to update: " + e.getMessage());
+        }
+	}
+
+	@Override
+	@Transactional
+	public String deleteJob(int jobId) {
+		try {
+			JobListing job = jobListingRepositor.findByjobId(jobId);
+			
+			 if (job != null && job.getJobTitle() != null) {
+			        jobListingRepositor.deleteByjobId(jobId);
+			        return "Record Deleted";
+			    } else {
+			        
+			        throw new IllegalArgumentException("Job with ID " + jobId + " does not exist or its title is null");
+			    }
+        } catch (EntityNotFoundException e) {
+            
+            throw new IllegalArgumentException("Job with ID " + jobId + " does not exist");
+        } catch (Exception e) {
+            
+            throw new RuntimeException("Failed to delete job: " + e.getMessage());
+        }
+	}
+
+	@Override
+	public String updateJob(JobListing jobListing) {
+		int jobId=jobListing.getJobId();
+		JobListing jobDetails = jobListingRepositor.findByjobId(jobId);
+		
+		if(jobDetails!=null)  {
+			jobDetails.setCompanyName(jobListing.getCompanyName());
+			jobDetails.setEducationalQualification(jobListing.getEducationalQualification());
+			jobDetails.setEmployeeType(jobListing.getEmployeeType());
+			jobDetails.setJobDescription(jobListing.getJobDescription());
+			jobDetails.setJobId(jobListing.getJobId());
+			jobDetails.setJobMode(jobListing.getJobMode());
+			jobDetails.setJobPositioning(jobListing.getJobPositioning());
+			jobDetails.setJobTitle(jobListing.getJobTitle());
+			jobDetails.setKeySkills(jobListing.getKeySkills());
+			jobDetails.setLocation(jobListing.getLocation());
+			jobDetails.setMaximumSalary(jobListing.getMaximumSalary());
+			jobDetails.setMaximumWorkExperience(jobListing.getMaximumWorkExperience());
+			jobDetails.setMinimumSalary(jobListing.getMinimumSalary());
+			jobDetails.setMaximumWorkExperience(jobListing.getMaximumWorkExperience());
+			jobDetails.setPostedBy(jobListing.getPostedBy());
+			jobListingRepositor.save(jobDetails);
+			return "updated Successfully";
+		}
+		else {
+			 throw new IllegalArgumentException("Job with jobId " + jobId + " not found");
+	    }
+		
+		
+		
+	}
+
+	@Override
+	public String updateJobApplicationStatus(int jobId) {
+		 try {
+		        JobListing job = jobRepository.findByjobId(jobId);
+		        if(job == null) {
+		            throw new NoSuchElementException("Job not found with ID: " + jobId);
+		        }
+		        if("open".equals(job.getJobApplicationStatus())) {
+		            job.setJobApplicationStatus("closed");
+		            
+		        } 
+		        jobRepository.save(job);
+		        return "Job Application Updated";
+		    } catch (DataAccessException e) {
+		       
+		        throw new RuntimeException("Failed to update job application status: " + e.getMessage());
+		    }
+	}
+
+	@Override
+	public List<JobSeeker> getDatails(int jobId, String employeerMail) {//gets the job_id from applied table and fetch the emailids from which are applied for this job and take the email ids and search from the jobseeker table
+		try {
+	        List<AppliedJobs> appliedTableDetails = jobAppliedRepository.findByJobId(jobId);
+
+	        List<String> emailIds = new ArrayList<>();
+	        for (AppliedJobs appliedJob : appliedTableDetails) {
+	            emailIds.add(appliedJob.getAppliedBy());
+	        }
+
+	        List<JobSeeker> jobSeekers = new ArrayList<>();
+	        for (String emailId : emailIds) {
+	            JobSeeker jobSeeker = jobSeekerRepo.findByEmailId(emailId);
+	            if (jobSeeker != null) {
+	                jobSeekers.add(jobSeeker);
+	            }
+	        }
+	        return jobSeekers;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to get job seekers by job: " + e.getMessage());
+	    }
+	}
+	
+	@Override
+	public String updateemployerSubscription(Employeer employee) {
+		String email = employee.getEmailId();
+		Employeer emp = employeerRepo.findByEmailId(email);
+		System.out.println("subscription "+emp.getSubscriptionType());
+		emp.setSubscriptionType(employee.getSubscriptionType());
+		employeerRepo.save(emp);
+		
+		return "Successfully updated subscription";
+	}
+
+	@Override
+	public Map<String, String> getCount(String employeerMail) {
+		  try {
+		        List<JobListing> jobs = getjobs(employeerMail);
+		        Employeer employeerDetails =  employeerRepo.findByEmailId(employeerMail);
+		        Date date = employeerDetails.getSubscriptionExprirationDate();
+		       // Subscription sub = subscriptionRepo.findNoOfJobsBySubscriptionType(Subscription);
+		        
+		        //String status= employeerDetails.getStatus();
+		        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		        String formattedDate = dateFormat.format(date);
+		        System.out.println("Formatted Date: " + formattedDate);
+		        int jobCount = jobs.size();
+		        //int no_of_jobs = sub.getNumberOfJobs();
+//		        int remainingJobs = (no_of_jobs)-(jobCount);
+//		        String remaining = Integer.toString(remainingJobs);
+		        String dateStirng = Integer.toString(jobCount);
+		        Map<String, String> countMap = new HashMap<>();
+		        countMap.put("jobCount", dateStirng);
+		        countMap.put("SubscriptionExprirationDate",formattedDate);
+		        
+		        return countMap;
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to get application count: " + e.getMessage());
+		    }
+	}
+
+
+
+
+	@Override
+	public void sendHtmlMessage(String to, String subject, String name) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	@Override
+	public void sendVerificationEmail(String to, String verificationLink) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	@Override
+	public String getSubscriptionType(String employeerMail) {
+		Employeer subscription = employeerRepo.findByEmailId(employeerMail);
+		String subscriptionType= subscription.getSubscriptionType();
+		Date subscription_Expiry_Date = subscription.getSubscriptionExprirationDate();
+		System.out.println(subscription);
+		return subscriptionType;
+	}
+
+
+
+
+	@Override
+	public String sendmail(String employeerEmailId, String jobseekerMailId,String username,String status,int jobId) {		
+//		SimpleMailMessage mailMessage = new SimpleMailMessage();
+//		mailMessage.setFrom("nivas.vooturi@gmail.com");
+//		mailMessage.setTo(jobseekerMailId);
+//		mailMessage.setSubject("this is subject");
+//		mailMessage.setText("this is body");
+//		javaMailSender.send(mailMessage);
+		
+		try {
+		    MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+		    MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+		    helper.setSubject("From springBoot");
+		    helper.setTo(jobseekerMailId);
+		    Employeer employee = employeerRepo.findByEmailId(employeerEmailId);
+		    String company = employee.getCompanyName();
+		    String emailContent = getEmailContent(employeerEmailId,company,username,status);
+		    ///add logic for fetching company Name from employeerEmialID
+		    helper.setText(emailContent, true);
+		    javaMailSender.send(mimeMessage);
+		    return "Mail sent successfully";
+		} catch (Exception e) {
+		    return "Error while Sending Mail";
+		}
+		
+		}
+	
+	String getEmailContent(String employeerEmailId,String companyName, String username,String status) throws TemplateException, IOException {
+		Map<String, Object> model = new HashMap<>();
+	    model.put("companyName", companyName);
+	    model.put("username", username);
+	    model.put("employeerId", employeerEmailId);
+		Template template = emailConfig.getTemplate(status+".html");
+	    return FreeMarkerTemplateUtils.processTemplateIntoString(template,model);
+	}
+
+
+
+	
+
+	
+
+
+
+
+
+	
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+	
+	
+	
+	
+
+	
+	}

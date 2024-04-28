@@ -13,9 +13,10 @@ public interface JobRepository extends JpaRepository<JobListing, Integer> {
 	
 	List<JobListing> findByMinimumSalaryGreaterThanEqual(double highpackage);
 	List<JobListing> findByPostedBy(String email);
-	List<JobListing> deleteByjobId(int jobId);
+	JobListing deleteByjobId(int jobId);
 	List<JobListing> findByJobTitleContaining(String keyword);
 	
 	JobListing findByjobId(int jobId);
 	List<JobListing> findByJobTitleContainingIgnoreCase(String searchKeyword);
+	boolean existsByJobId(int jobId);
 }

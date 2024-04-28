@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="JobSeekerServiceImplTest" project="jobhunt" tests="21" started="21" failures="0" errors="1" ignored="0">
+  <testsuite name="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="1.274" displayname="JobSeekerServiceImplTest" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]">
+    <testcase name="testGetJobSeekerDetails_EmailIdDoesNotExist_ReturnsNull" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="1.178" displayname="testGetJobSeekerDetails_EmailIdDoesNotExist_ReturnsNull()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobSeekerDetails_EmailIdDoesNotExist_ReturnsNull()]"/>
+    <testcase name="testGetJobs_ThrowsRuntimeException" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.007" displayname="testGetJobs_ThrowsRuntimeException()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobs_ThrowsRuntimeException()]"/>
+    <testcase name="testUpdateProfile_JobSeekerIdExists_ProfileUpdated_ReturnsSuccessMessage" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.014" displayname="testUpdateProfile_JobSeekerIdExists_ProfileUpdated_ReturnsSuccessMessage()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testUpdateProfile_JobSeekerIdExists_ProfileUpdated_ReturnsSuccessMessage()]"/>
+    <testcase name="testSearchJobListings_KeywordMatchesJobTitle_ReturnsNonEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.005" displayname="testSearchJobListings_KeywordMatchesJobTitle_ReturnsNonEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testSearchJobListings_KeywordMatchesJobTitle_ReturnsNonEmptyList()]"/>
+    <testcase name="testApplyJob_AlreadyApplied" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.005" displayname="testApplyJob_AlreadyApplied()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testApplyJob_AlreadyApplied()]"/>
+    <testcase name="testApplyJob_Success" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.003" displayname="testApplyJob_Success()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testApplyJob_Success()]"/>
+    <testcase name="testGetJobAppliedDetails_UserHasNoApplications_ReturnsEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testGetJobAppliedDetails_UserHasNoApplications_ReturnsEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobAppliedDetails_UserHasNoApplications_ReturnsEmptyList()]"/>
+    <testcase name="login_InvalidCredentials" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.001" displayname="login_InvalidCredentials()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:login_InvalidCredentials()]"/>
+    <testcase name="testGetJobs_ReturnsEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testGetJobs_ReturnsEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobs_ReturnsEmptyList()]"/>
+    <testcase name="testSearchJobListings_KeywordDoesNotMatchAnyJobTitle_ReturnsEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testSearchJobListings_KeywordDoesNotMatchAnyJobTitle_ReturnsEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testSearchJobListings_KeywordDoesNotMatchAnyJobTitle_ReturnsEmptyList()]"/>
+    <testcase name="testUpdateProfile_DatabaseError_ThrowsRuntimeException" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.004" displayname="testUpdateProfile_DatabaseError_ThrowsRuntimeException()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testUpdateProfile_DatabaseError_ThrowsRuntimeException()]"/>
+    <testcase name="testGetJobSeekerDetails_EmailIdExists_ReturnsJobSeeker" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testGetJobSeekerDetails_EmailIdExists_ReturnsJobSeeker()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobSeekerDetails_EmailIdExists_ReturnsJobSeeker()]"/>
+    <testcase name="testGetJobAppliedDetails_DatabaseError_ThrowsRuntimeException" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testGetJobAppliedDetails_DatabaseError_ThrowsRuntimeException()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobAppliedDetails_DatabaseError_ThrowsRuntimeException()]"/>
+    <testcase name="testGetJobAppliedDetails_UserHasApplications_ReturnsNonEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testGetJobAppliedDetails_UserHasApplications_ReturnsNonEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobAppliedDetails_UserHasApplications_ReturnsNonEmptyList()]"/>
+    <testcase name="login_Success" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="login_Success()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:login_Success()]"/>
+    <testcase name="testSearchJobListings_DatabaseError_ThrowsRuntimeException" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.004" displayname="testSearchJobListings_DatabaseError_ThrowsRuntimeException()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testSearchJobListings_DatabaseError_ThrowsRuntimeException()]"/>
+    <testcase name="register_Exception" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="register_Exception()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:register_Exception()]"/>
+    <testcase name="testGetJobs_ReturnsNonEmptyList" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.001" displayname="testGetJobs_ReturnsNonEmptyList()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testGetJobs_ReturnsNonEmptyList()]"/>
+    <testcase name="testUpdateProfile_JobSeekerIdDoesNotExist_ReturnsFailureMessage" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.002" displayname="testUpdateProfile_JobSeekerIdDoesNotExist_ReturnsFailureMessage()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testUpdateProfile_JobSeekerIdDoesNotExist_ReturnsFailureMessage()]"/>
+    <testcase name="register_Success" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.02" displayname="register_Success()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:register_Success()]">
+      <error>org.mockito.exceptions.base.MockitoException: 
+Only void methods can doNothing()!
+Example of correct use of doNothing():
+    doNothing().
+    doThrow(new RuntimeException())
+    .when(mock).someVoidMethod();
+Above means:
+someVoidMethod() does nothing the 1st time but throws an exception the 2nd time is called&#13;
+	at com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest.register_Success(JobSeekerServiceImplTest.java:55)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#13;
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)&#13;
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)&#13;
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:688)&#13;
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)&#13;
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)&#13;
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)&#13;
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)&#13;
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)&#13;
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)&#13;
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)&#13;
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)&#13;
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)&#13;
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)&#13;
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)&#13;
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)&#13;
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)&#13;
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$6(TestMethodTestDescriptor.java:210)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:206)&#13;
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:131)&#13;
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:65)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:139)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:129)&#13;
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:127)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:126)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:84)&#13;
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)&#13;
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:38)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:143)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:129)&#13;
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:127)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:126)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:84)&#13;
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)&#13;
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:38)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:143)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:129)&#13;
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:127)&#13;
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:126)&#13;
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:84)&#13;
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:32)&#13;
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)&#13;
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:51)&#13;
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:108)&#13;
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:88)&#13;
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:54)&#13;
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:67)&#13;
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:52)&#13;
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:96)&#13;
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:84)&#13;
+	at org.eclipse.jdt.internal.junit5.runner.JUnit5TestReference.run(JUnit5TestReference.java:98)&#13;
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:40)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:529)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:756)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:452)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)&#13;
+&#13;
+</error>
+    </testcase>
+    <testcase name="testApplyJob_Exception" classname="com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest" time="0.003" displayname="testApplyJob_Exception()" uniqueid="[engine:junit-jupiter]/[class:com.hv.jobhunt.serviceImpl.JobSeekerServiceImplTest]/[method:testApplyJob_Exception()]"/>
+  </testsuite>
+</testrun>

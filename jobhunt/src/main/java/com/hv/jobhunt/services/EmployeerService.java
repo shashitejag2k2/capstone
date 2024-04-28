@@ -24,16 +24,19 @@ public interface EmployeerService {
 	 List<JobSeeker> getDatails (int jobId,String employeerMail);
 	 
 	 Map<String, String> getCount(String employeerMail);
-	 
-	 void sendHtmlMessage(String to,String subject, String name);
-
-	void sendVerificationEmail(String to, String verificationLink);
+	
 	
 	String getSubscriptionType(String employeerMail);
 	
 	String sendmail(String employeerEmailId,String jobseekerMailId,String username,String status,int jobId);
 
-	String login(String emailId, String password);
+	Employeer login(String emailId, String password);
+	
+	String updateemployerSubscription( Employeer employee);
+	
+	String register(Employeer employee);
+	
+	String remainingJobCount(String subscriptionType);
 
 	
 	

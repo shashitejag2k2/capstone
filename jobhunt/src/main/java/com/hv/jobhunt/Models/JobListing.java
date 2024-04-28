@@ -14,8 +14,7 @@ public class JobListing {
 	    @Column(name = "job_title")
 	    private String jobTitle;
 	    
-	    @Column(name = "job_positioning")
-	    private String jobPositioning;
+	    
 	    
 	    @Column(name = "employee_type")
 	    private String employeeType;
@@ -93,13 +92,7 @@ public class JobListing {
 	        this.jobTitle = jobTitle;
 	    }
 
-	    public String getJobPositioning() {
-	        return jobPositioning;
-	    }
-
-	    public void setJobPositioning(String jobPositioning) {
-	        this.jobPositioning = jobPositioning;
-	    }
+	    
 
 	    public String getEmployeeType() {
 	        return employeeType;
@@ -195,7 +188,7 @@ public class JobListing {
 	        return "JobListing{" +
 	                "jobId=" + jobId +
 	                ", jobTitle='" + jobTitle + '\'' +
-	                ", jobPositioning='" + jobPositioning + '\'' +
+	               
 	                ", employeeType='" + employeeType + '\'' +
 	                ", jobDescription='" + jobDescription + '\'' +
 	                ", keySkills='" + keySkills + '\'' +

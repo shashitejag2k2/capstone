@@ -1,0 +1,84 @@
+package com.hv.jobhunt.controllers;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.JobSeeker;
+import com.hv.jobhunt.services.JobSeekerService;
+import org.mockito.junit.MockitoJUnitRunner;
+@ExtendWith(MockitoExtension.class)
+class JobSeekerControllerTest {
+
+	  	@Mock
+	    private JobSeekerService jobSeekerService;
+
+	    @InjectMocks
+	    private JobSeekerController JobSeekerController;
+
+	   
+
+	    @Test
+	    public void testApplyJob_Success() {
+	        // Mocking
+	        AppliedJobs jobApplication = new AppliedJobs();
+	        jobApplication.setAppliedBy("user@example.com");
+	        jobApplication.setJobId(123);
+
+	        when(jobSeekerService.applyJob(any(AppliedJobs.class))).thenReturn("Job application saved successfully");
+
+	        // Execution
+	        ResponseEntity<String> responseEntity = JobSeekerController.applyJob(jobApplication);
+
+	        // Assertion
+	        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+	        assertEquals("Job application saved successfully", responseEntity.getBody());
+	    }
+
+	    @Test
+	    public void testApplyJob_Failure() {
+	        // Mocking
+	        AppliedJobs jobApplication = new AppliedJobs();
+	        jobApplication.setAppliedBy("user@example.com");
+	        jobApplication.setJobId(123);
+
+	        when(jobSeekerService.applyJob(any(AppliedJobs.class))).thenReturn("Failed to save job application: Some error occurred");
+
+	        // Execution
+	        ResponseEntity<String> responseEntity = JobSeekerController.applyJob(jobApplication);
+	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+	        assertEquals("Failed to save job application: Some error occurred", responseEntity.getBody());
+	    }
+	    
+	    @Test
+	    public void testUpdateProfileSuccess() {
+	        // Mock jobSeeker object
+	        JobSeeker jobSeeker = new JobSeeker(/* constructor parameters */);
+
+	        // Mock the behavior of jobSeekerService.updateProfile() to return success message
+	        when(jobSeekerService.updateProfile(jobSeeker)).thenReturn("Profile Updated successfully");
+
+	        // Call the controller method
+	        ResponseEntity<String> responseEntity = JobSeekerController.updateProfile(jobSeeker);
+
+	        // Verify the response status code
+	        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+
+	        // Verify the response body contains the success message
+	        assertEquals("Profile Updated successfully", responseEntity.getBody());
+	    }
+	    
+	    
+
+
+}

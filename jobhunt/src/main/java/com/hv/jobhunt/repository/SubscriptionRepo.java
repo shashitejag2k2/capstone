@@ -13,6 +13,8 @@ public interface SubscriptionRepo extends JpaRepository<Subscription, Integer> {
 	void deleteById(Long id);
 	
 	Subscription findNoOfJobsBySubscriptionType(String Subscription);
+
+	Subscription findBySubscriptionType(String subscriptionType);
 	
 	
 

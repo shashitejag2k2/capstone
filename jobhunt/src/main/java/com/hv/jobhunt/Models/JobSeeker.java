@@ -27,7 +27,7 @@ public class JobSeeker {
     private String collegeName;
     
     @Column(name = "experience")
-    private int experience;
+    private String experience;
     
     @Column(name = "skills")
     private String skills;
@@ -72,11 +72,11 @@ public class JobSeeker {
 		this.collegeName = collegeName;
 	}
 
-	public int getExperience() {
+	public String getExperience() {
 		return experience;
 	}
 
-	public void setExperience(int experience) {
+	public void setExperience(String experience) {
 		this.experience = experience;
 	}
 

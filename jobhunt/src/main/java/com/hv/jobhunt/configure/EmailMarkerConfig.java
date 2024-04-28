@@ -13,5 +13,10 @@ public class EmailMarkerConfig {
         bean.setTemplateLoaderPath("classpath:/templates/");
         return bean;
     }
+
+	public Object getTemplate(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
  

@@ -1,0 +1,120 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.controllers.AdminController;
+import com.hv.jobhunt.repository.EmployeerRepo;
+
+@ExtendWith(MockitoExtension.class)
+class AdminServiceImplTest {
+	
+	@InjectMocks
+    private AdminServiceImpl adminServiceImpl;
+	
+	@Mock
+    private EmployeerRepo employeerRepo;
+	
+	@Test
+    public void testGetEmployeersSuccess() {
+        // Mocked list of employees
+        List<Employeer> employees = new ArrayList<>();
+        Employeer employee1 = new Employeer();
+        employee1.setEmployeeId(1);
+        employee1.setName("John Doe");
+        employee1.setEmailId("john@example.com");
+        employee1.setPassword("password123");
+        employee1.setCompanyName("ABC Company");
+        employee1.setSubscriptionType("Premium");
+        employee1.setSubscriptionExprirationDate(new Date());
+        employee1.setStatus("Active");
+        employees.add(employee1);
+
+        Employeer employee2 = new Employeer();
+        employee2.setEmployeeId(2);
+        employee2.setName("Jane Smith");
+        employee2.setEmailId("jane@example.com");
+        employee2.setPassword("password456");
+        employee2.setCompanyName("XYZ Corporation");
+        employee2.setSubscriptionType("Basic");
+        employee2.setSubscriptionExprirationDate(new Date());
+        employee2.setStatus("Inactive");
+        employees.add(employee2);
+        when(employeerRepo.findAll()).thenReturn(employees);
+
+        // Call the service method
+        List<Employeer> result = adminServiceImpl.getEmployeers();
+
+        // Verify that the result matches the mocked list of employees
+        assertEquals(employees, result);
+    }
+
+    @Test
+    public void testGetEmployeersNoEmployeesFound() {
+        // Mock the behavior of employeerRepo.findAll() to return an empty list
+        when(employeerRepo.findAll()).thenReturn(new ArrayList<>());
+
+        // Verify that calling the service method throws a RuntimeException with the correct message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getEmployeers();
+        });
+        assertEquals("No employees found", exception.getMessage());
+    }
+
+    @Test
+    public void testGetEmployeersFailure() {
+        // Mock the behavior of employeerRepo.findAll() to throw an exception
+        when(employeerRepo.findAll()).thenThrow(new RuntimeException("Error fetching employees"));
+
+        // Verify that calling the service method throws a RuntimeException with the correct message
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getEmployeers();
+        });
+        assertEquals("Failed to retrieve employees: Error fetching employees", exception.getMessage());
+    }
+    
+    @Test
+    public void testGetIndividualEmployeeNotFound() {
+        // Mocked employee ID
+        int employeeId = 123;
+
+        // Mock the behavior of employeerRepo.findByEmployeeId() to return null
+        when(employeerRepo.findByEmployeeId(employeeId)).thenReturn(null);
+
+        // Verify that calling the service method with a non-existent employee ID throws a RuntimeException
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getIndividualEmployee(employeeId);
+        });
+        assertEquals("Failed to retrieve individual employee: Employee not found for ID " + employeeId, exception.getMessage());
+    }
+
+    @Test
+    public void testGetIndividualEmployeeFailure() {
+        // Mocked employee ID
+        int employeeId = 123;
+
+        // Mock the behavior of employeerRepo.findByEmployeeId() to throw an exception
+        when(employeerRepo.findByEmployeeId(employeeId)).thenThrow(new RuntimeException("Error fetching employee"));
+
+        // Verify that calling the service method with an error fetching employee ID throws a RuntimeException
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        	adminServiceImpl.getIndividualEmployee(employeeId);
+        });
+        assertEquals("Failed to retrieve individual employee: Error fetching employee", exception.getMessage());
+    }
+	
+
+	
+
+}

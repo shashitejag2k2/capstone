@@ -1,0 +1,86 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.controllers.AdminController;
+import com.hv.jobhunt.repository.EmployeerRepo;
+
+@ExtendWith(MockitoExtension.class)
+class AdminServiceImplTest {
+	
+	@InjectMocks
+    private AdminServiceImpl adminServiceImpl;
+	
+	@Mock
+    private EmployeerRepo employeerRepo;
+	
+	@Test
+	public void testGetEmployeers_success() {
+	    // Setup: create a list of mock Employeer objects and save them in the repository
+	    List<Employeer> expectedEmployeers = new ArrayList<>();
+	    Employeer emp1 = new Employeer();
+	    emp1.setEmployeeId(1);
+	    emp1.setName("John Doe");
+	    emp1.setEmailId("john.doe@example.com");
+	    emp1.setPassword("password123");
+	    emp1.setCompanyName("Acme Inc.");
+	    emp1.setSubscriptionType("BASIC");
+	    emp1.setSubscriptionExprirationDate(new Date());
+	    emp1.setStatus("ACTIVE");
+	    expectedEmployeers.add(emp1);
+
+	    Employeer emp2 = new Employeer();
+	    emp2.setEmployeeId(2);
+	    emp2.setName("Jane Smith");
+	    emp2.setEmailId("jane.smith@example.com");
+	    emp2.setPassword("qwerty456");
+	    emp2.setCompanyName("Contoso Ltd.");
+	    emp2.setSubscriptionType("PREMIUM");
+	    emp2.setSubscriptionExprirationDate(new Date());
+	    emp2.setStatus("INACTIVE");
+	    expectedEmployeers.add(emp2);
+
+	    employeerRepo.saveAll(expectedEmployeers);
+
+	    // Test: call the method and verify that the returned list is not empty and contains the expected Employeer objects
+	    List<Employeer> actualEmployeers = adminServiceImpl.getEmployeers();
+	    assertEquals(2, actualEmployeers.size());
+	    assertTrue(actualEmployeers.containsAll(expectedEmployeers));
+	}
+
+	@Test
+	public void testGetEmployeers_failure() {
+	    // Setup: clear the repository so that it is empty
+	    employeerRepo.deleteAll();
+
+	    // Test: call the method and verify that a RuntimeException is thrown with the expected message
+	    assertThrows(RuntimeException.class, () -> adminServiceImpl.getEmployeers());
+	    verify(logger).error("Failed to retrieve employees: No employees found");
+	}
+
+	@Test
+	public void testGetEmployeers_exception() {
+	    // Setup: throw an exception in the repository method
+	    when(employeerRepo.findAll()).thenThrow(new RuntimeException("Something went wrong"));
+
+	    // Test: call the method and verify that a RuntimeException is thrown with the expected message
+	    assertThrows(RuntimeException.class, () -> adminServiceImpl.getEmployeers());
+	    verify(logger).error("Failed to retrieve employees: Something went wrong");
+	}
+	
+
+	
+
+}

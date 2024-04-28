@@ -1,0 +1,325 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import javax.xml.bind.ValidationException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+import com.hv.jobhunt.repository.JobRepository;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeerServiceImplTest {
+
+	@Mock
+    private JobRepository jobRepository;
+	
+	@Mock
+	private JobAppliedRepository jobAppliedRepository;
+
+    @InjectMocks
+    private EmployeerServiceImpl employeerServiceImpl;
+    
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+    
+    @Test
+    public void testPostJobSuccess() {
+        JobListing jobListing = new JobListing();
+        jobListing.setJobTitle("Software Engineer");
+        jobListing.setJobPositioning("Full-time");
+        jobListing.setEmployeeType("Permanent");
+        jobListing.setJobDescription("Design, develop, and maintain software systems.");
+        jobListing.setKeySkills("Java, Spring, Hibernate, SQL");
+        jobListing.setMinimumWorkExperience(2);
+        jobListing.setMaximumWorkExperience(5);
+        jobListing.setLocation("New York");
+        jobListing.setJobMode("On-site");
+        jobListing.setEducationalQualification("Bachelor's degree in Computer Science");
+        jobListing.setCompanyName("ABC Company");
+        jobListing.setMinimumSalary(80000.0);
+        jobListing.setMaximumSalary(120000.0);
+        jobListing.setPostedBy("John Doe");
+        jobListing.setJobApplicationStatus("open");
+
+        when(jobRepository.save(jobListing)).thenReturn(jobListing);
+
+        String result = employeerServiceImpl.postJob(jobListing);
+
+        assertEquals("Job Posted", result);
+        verify(jobRepository, times(1)).save(jobListing);
+    }
+    
+    @Test
+    public void testPostJobNullObject() {
+        assertThrows(NullPointerException.class, () -> employeerServiceImpl.postJob(null));
+}
+    
+    @Test
+    public void testPostJobInvalidJobTitle() {
+        JobListing jobListing = new JobListing();
+        jobListing.setJobTitle(null);
+        jobListing.setJobPositioning("Full-time");
+        jobListing.setEmployeeType("Permanent");
+        jobListing.setJobDescription("Design, develop, and maintain software systems.");
+        jobListing.setKeySkills("Java, Spring, Hibernate, SQL");
+        jobListing.setMinimumWorkExperience(2);
+        jobListing.setMaximumWorkExperience(5);
+        jobListing.setLocation("New York");
+        jobListing.setJobMode("On-site");
+        jobListing.setEducationalQualification("Bachelor's degree in Computer Science");
+        jobListing.setCompanyName("ABC Company");
+        jobListing.setMinimumSalary(80000.0);
+        jobListing.setMaximumSalary(120000.0);
+        jobListing.setPostedBy("John Doe");
+        jobListing.setJobApplicationStatus("open");
+
+        assertThrows(ValidationException.class, () -> employeerServiceImpl.postJob(jobListing));
+    }
+    
+    @Test
+    public void testGetJobs_ByPostedBy() {
+        // Create a job listing with a postedBy email
+        JobListing jobListing = new JobListing();
+        jobListing.setJobTitle("Test Job");
+        jobListing.setPostedBy("test@example.com");
+        jobRepository.save(jobListing);
+
+        // Call the getjobs method
+        List<JobListing> jobListings = employeerServiceImpl.getjobs("test@example.com");
+
+        // Assert that the job listing is returned
+        assertNotNull(jobListings);
+        assertEquals(1, jobListings.size());
+        assertEquals("Test Job", jobListings.get(0).getJobTitle());
+    }
+    
+    @Test
+    public void testGetJobs_NoJobsFound() {
+    	String email = "nonexistent@example.com";
+        // Call the getjobs method with an email that doesn't have any job listings
+        List<JobListing> jobListings = employeerServiceImpl.getjobs(email);
+
+        // Assert that an empty list is returned
+        assertNotNull(jobListings);
+        assertEquals(0, jobListings.size());
+    }
+    @Test
+    public void testGetJobs_MultipleJobsFound() {
+        // Create multiple job listings with the same postedBy email
+        JobListing jobListing1 = new JobListing();
+        jobListing1.setJobTitle("Test Job 1");
+        jobListing1.setPostedBy("test@example.com");
+        jobRepository.save(jobListing1);
+
+        JobListing jobListing2 = new JobListing();
+        jobListing2.setJobTitle("Test Job 2");
+        jobListing2.setPostedBy("test@example.com");
+        jobRepository.save(jobListing2);
+
+        // Call the getjobs method
+        List<JobListing> jobListings = employeerServiceImpl.getjobs("test@example.com");
+
+        // Assert that both job listings are returned
+        assertNotNull(jobListings);
+        assertEquals(2, jobListings.size());
+        assertEquals("Test Job 1", jobListings.get(0).getJobTitle());
+        assertEquals("Test Job 2", jobListings.get(1).getJobTitle());
+    }
+    
+    @Test
+    void testGetJobSeekersSuccess() {
+        String email = "test@example.com";
+        List<AppliedJobs> appliedJobs = new ArrayList<>();
+        when(jobAppliedRepository.findByPostedBy(email)).thenReturn(appliedJobs);
+
+        List<AppliedJobs> result = employeerServiceImpl.getjobSeekers(email);
+
+        assertEquals(appliedJobs, result);
+        verify(jobAppliedRepository, times(1)).findByPostedBy(email);
+    }
+    
+    @Test
+    void testGetJobSeekersFailure() {
+        String email = "test@example.com";
+        when(jobAppliedRepository.findByPostedBy(email)).thenThrow(new RuntimeException("Error retrieving job seekers"));
+
+        assertThrows(RuntimeException.class, () -> employeerServiceImpl.getjobSeekers(email));
+        verify(jobAppliedRepository, times(1)).findByPostedBy(email);
+    }
+    
+    @Test
+    void testUpdateStatusSuccess() {
+        String appliedBy = "test@example.com";
+        int jobId = 1;
+        String newStatus = "APPROVED";
+
+        AppliedJobs existingJobApplied = new AppliedJobs();
+        existingJobApplied.setAppliedBy(appliedBy);
+        existingJobApplied.setJobId(jobId);
+        existingJobApplied.setStatus("PENDING");
+
+        when(jobAppliedRepository.findByAppliedByAndJobId(appliedBy, jobId))
+        .thenAnswer(invocation -> Optional.of(existingJobApplied));
+
+        	
+        assertThrows(RuntimeException.class, () -> employeerServiceImpl.updateStatus(existingJobApplied));
+
+// Verifying that findByAppliedByAndJobId is called once with the correct arguments
+        verify(jobAppliedRepository, times(1)).findByAppliedByAndJobId(appliedBy, jobId);
+
+// Verifying that save is never called
+verify(jobAppliedRepository, never()).save(existingJobApplied);
+    }
+
+    @Test
+    void testUpdateStatusFailure() {
+        String appliedBy = "test@example.com";
+        int jobId = 1;
+        String newStatus = "APPROVED";
+
+        AppliedJobs existingJobApplied = new AppliedJobs();
+        existingJobApplied.setAppliedBy(appliedBy);
+        existingJobApplied.setJobId(jobId);
+        existingJobApplied.setStatus("PENDING");
+
+        when(jobAppliedRepository.findByAppliedByAndJobId(appliedBy, jobId)).thenAnswer(invocation -> Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> employeerServiceImpl.updateStatus(existingJobApplied));
+        verify(jobAppliedRepository, times(1)).findByAppliedByAndJobId(appliedBy, jobId);
+        verify(jobAppliedRepository, never()).save(existingJobApplied);
+    }
+    
+    @Test
+    void testDeleteJobSuccess() {
+        int jobId = 1;
+        JobListing job = new JobListing();
+        job.setJobId(jobId);
+        job.setJobTitle("Test Job");
+
+        when(jobRepository.findByjobId(jobId)).thenReturn(job);
+        
+
+        String result = employeerServiceImpl.deleteJob(jobId);
+
+        assertEquals("Record Deleted", result);
+        verify(jobRepository, times(1)).findByjobId(jobId);
+        verify(jobRepository, times(1)).deleteByjobId(jobId);
+    }
+    
+    @Test
+    void testDeleteJobNotFound() {
+        int jobId = 1;
+
+        Optional<JobListing> optionalJob = Optional.empty();
+        when(jobRepository.findByjobId(jobId)).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () -> employeerServiceImpl.deleteJob(jobId));
+        verify(jobRepository, times(1)).findByjobId(jobId);
+        verify(jobRepository, never()).deleteByjobId(jobId);
+    }
+    
+    @Test
+    void testUpdateJobSuccess() {
+        // Prepare test data
+        JobListing jobListing = new JobListing();
+        jobListing.setJobId(1);
+        jobListing.setCompanyName("Test Company");
+        // Mock the behavior of findByjobId to return the jobListing when job exists
+        when(jobRepository.findByjobId(1)).thenReturn(jobListing);
+
+        // Call the updateJob method
+        when(jobRepository.findByjobId(1)).thenReturn(jobListing);
+
+        // Call the updateJob method
+        employeerServiceImpl.updateJob(jobListing);
+
+        // Verify that the jobListing is updated and saved
+        verify(jobRepository, times(1)).save(jobListing);
+    }
+    
+    @Test
+    void testUpdateJobNotFound() {
+        // Prepare test data
+        JobListing jobListing = new JobListing();
+        jobListing.setJobId(1);
+
+        // Mock the behavior of findByjobId to return null when job does not exist
+        when(jobRepository.findByjobId(1)).thenReturn(null);
+
+        // Call the updateJob method and assert that it throws an IllegalArgumentException
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> employeerServiceImpl.updateJob(jobListing));
+
+        // Verify that the correct exception message is thrown
+        assertEquals("Job with jobId 1 not found", exception.getMessage());
+
+        // Verify that save method is never called
+        verify(jobRepository, never()).save(jobListing);
+    }
+    
+    @Test
+    void testUpdateJobApplicationStatusSuccess() {
+        // Prepare test data
+        int jobId = 1;
+        JobListing job = new JobListing();
+        job.setJobId(jobId);
+        job.setJobApplicationStatus("open");
+
+        // Mock the behavior of findByjobId to return the job when job exists
+        when(jobRepository.findByjobId(jobId)).thenReturn(job);
+
+        // Call the updateJobApplicationStatus method
+        String result = employeerServiceImpl.updateJobApplicationStatus(jobId);
+
+        // Verify that the job application status is updated and saved
+        assertEquals("Job Application Updated", result);
+        assertEquals("closed", job.getJobApplicationStatus());
+        verify(jobRepository, times(1)).save(job);
+    }
+    @Test
+    void testUpdateJobApplicationStatusJobNotFound() {
+        // Prepare test data
+        int jobId = 1;
+
+        // Mock the behavior of findByjobId to return null when job does not exist
+        when(jobRepository.findByjobId(jobId)).thenReturn(null);
+
+        // Call the updateJobApplicationStatus method and assert that it throws NoSuchElementException
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+                () -> employeerServiceImpl.updateJobApplicationStatus(jobId));
+
+        // Verify that the correct exception message is thrown
+        assertEquals("Job not found with ID: " + jobId, exception.getMessage());
+
+        // Verify that save method is never called
+        verify(jobRepository, never()).save(any());
+    }
+    
+
+    
+    
+    
+    
+
+}

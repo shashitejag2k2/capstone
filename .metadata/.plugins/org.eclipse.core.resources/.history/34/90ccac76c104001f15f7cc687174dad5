@@ -1,0 +1,147 @@
+//package com.hv.jobhunt.controllers;
+//
+//import java.util.List;
+//
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.web.bind.annotation.CrossOrigin;
+//import org.springframework.web.bind.annotation.DeleteMapping;
+//import org.springframework.web.bind.annotation.GetMapping;
+//import org.springframework.web.bind.annotation.PathVariable;
+//import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PutMapping;
+//import org.springframework.web.bind.annotation.RequestBody;
+//import org.springframework.web.bind.annotation.RequestParam;
+//import org.springframework.web.bind.annotation.ResponseBody;
+//import org.springframework.web.bind.annotation.RestController;
+//
+//import com.hv.jobhunt.Models.AppliedJobs;
+//import com.hv.jobhunt.Models.JobListing;
+//import com.hv.jobhunt.repository.JobAppliedRepository;
+//import com.hv.jobhunt.repository.JobRepository;
+//
+//@CrossOrigin(origins="http://localhost:3000")
+//@RestController
+//public class JobListingController {
+//
+//
+//    @Autowired
+//    private JobRepository jobRepository;
+//    @Autowired
+//    private JobAppliedRepository appliedRepo;
+//    
+//    
+//    
+//    @PostMapping("/appy")//byJobSeeker
+//    public ResponseEntity<String> createJobApplication(@RequestBody AppliedJobs jobApplication) {
+//        try {
+//        	System.out.println(jobApplication.getStatus());
+//        	
+//        	appliedRepo.save(jobApplication);
+//            return new ResponseEntity<>("Job Applied created successfully", HttpStatus.CREATED);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>("Failed to create job application: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//    
+//    @GetMapping("/getjobseekersdata")//byEmployeerfor complete Data
+//    public ResponseEntity<Iterable<AppliedJobs>> getAppliedData(@RequestBody AppliedJobs jobApplication) {
+//        System.out.println("from jobseeker");
+//        String postedBy = jobApplication.getPostedBy();
+//        System.out.println(postedBy);
+//        Iterable<AppliedJobs> jobs = appliedRepo.findByPostedBy(postedBy);
+//        return new ResponseEntity<>(jobs, HttpStatus.OK);
+//    	
+//				             
+//    }
+//    @GetMapping("/getrolewithjobseeker")//byEmployeer for specific role data
+//    public ResponseEntity<Iterable<AppliedJobs>> getrolewithjobseeker(@RequestBody AppliedJobs jobApplication) {
+//        
+//        String postedBy = jobApplication.getPostedBy();
+//        String jobTitle = jobApplication.getJobTitle();
+//        System.out.println(postedBy);
+//        System.out.println(jobTitle);
+//        Iterable<AppliedJobs> jobs = appliedRepo.findByPostedByAndJobTitle(postedBy,jobTitle);
+//        return new ResponseEntity<>(jobs, HttpStatus.OK);
+//    	
+//				             
+//    }
+//    
+//    @PostMapping("/updateReview")//byJobSeeker To place Reviewing
+//    public ResponseEntity<String> updateReview(@RequestBody AppliedJobs jobApplication) {
+//        try {
+//        	String appliedBy = jobApplication.getAppliedBy();
+//        	String jobTitle = jobApplication.getJobTitle();
+//        	List<AppliedJobs> existingJobApplications = appliedRepo.findByAppliedByAndJobTitle(appliedBy, jobTitle);
+//        	
+//        	for (AppliedJobs existingJobApplication : existingJobApplications) {
+//        	    existingJobApplication.setStatus(jobApplication.getStatus());
+//        	}
+//        	appliedRepo.saveAll(existingJobApplications);
+//        	return new ResponseEntity<>("Status Updated Successfully", HttpStatus.CREATED);
+//
+//        } catch (Exception e) {
+//            return new ResponseEntity<>("Failed to updated: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//    
+//    @GetMapping("/getHighPayingJobs")
+//    public ResponseEntity<List<JobListing>> getHighPayingJobs() {
+//    	double highpackage = 20;
+//        List<JobListing> highPayingJobs = jobRepository.findByMinimumSalaryGreaterThanEqual(highpackage);
+//        return ResponseEntity.ok(highPayingJobs);
+//    }
+//    
+//    
+//    
+//
+//    // Endpoint to retrieve all jobs
+////    @GetMapping("/")
+////    public List<JobListing> getAllJobs() {
+////        return jobRepository.findAll();
+////    }
+//
+//    // Endpoint to retrieve a specific job by ID
+////    @GetMapping("/{id}")
+////    public JobListing getJobById(@PathVariable("id") int id) {
+////        return jobRepository.findById(id).orElse(null);
+////    }
+////
+////    // Endpoint to create a new job
+////    @PostMapping("/")
+////    public JobListing createJob(@RequestBody JobListing job) {
+////        return jobRepository.save(job);
+////    }
+//
+//    // Endpoint to update an existing job
+////    @PutMapping("/{id}")
+////    public JobListing updateJob(@PathVariable("id") int id, @RequestBody JobListing updatedJob) {
+////    	JobListing existingJob = jobRepository.findById(id).orElse(null);
+////        if (existingJob != null) {
+////            existingJob.setJobTitle(updatedJob.getJobTitle());
+////            existingJob.setJobPositioning(updatedJob.getJobPositioning());
+////            existingJob.setEmployeeType(updatedJob.getEmployeeType());
+////            existingJob.setJobDescription(updatedJob.getJobDescription());
+////            existingJob.setKeySkills(updatedJob.getKeySkills());
+////            existingJob.setMinimumWorkExperience(updatedJob.getMinimumWorkExperience());
+////            existingJob.setMaximumWorkExperience(updatedJob.getMaximumWorkExperience());
+////            existingJob.setLocation(updatedJob.getLocation());
+////            existingJob.setJobMode(updatedJob.getJobMode());
+////            existingJob.setEducationalQualification(updatedJob.getEducationalQualification());
+////            existingJob.setCompanyName(updatedJob.getCompanyName());
+////            existingJob.setMinimumSalary(updatedJob.getMinimumSalary());
+////            existingJob.setMaximumSalary(updatedJob.getMaximumSalary());
+////            return jobRepository.save(existingJob);
+////        } else {
+////            return null; // or handle the case when job doesn't exist
+////        }
+////    }
+//
+//    // Endpoint to delete a job by ID
+////    @DeleteMapping("/{id}")
+////    public void deleteJob(@PathVariable("id") int id) {
+////        jobRepository.deleteById(id);
+////    }
+//
+//}

@@ -19,6 +19,8 @@ public interface EmployeerRepo extends JpaRepository<Employeer,Integer>{
 	 
 	 Employeer findBySubscriptionType(String employeerMail);
 	 
+	 boolean existsByEmailId(String emailId);
+	 
 	 
 	 
 
