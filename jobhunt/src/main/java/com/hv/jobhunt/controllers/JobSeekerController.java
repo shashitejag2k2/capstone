@@ -30,8 +30,8 @@ public class JobSeekerController {
 	 @PostMapping("/jobSeekerRegister")
 	    public ResponseEntity<String> jobSeekerRegister(@RequestBody JobSeeker jobSeeker) {
 	        try {
-	        	jobSeekerService.register(jobSeeker);
-	            return new ResponseEntity<>("New JobSeeker Added Successfully", HttpStatus.CREATED);
+	        	String msg=jobSeekerService.register(jobSeeker);
+	            return new ResponseEntity<>(msg, HttpStatus.CREATED);
 	        } catch (Exception e) {
 	            return new ResponseEntity<>("Failed to add JobSeeker: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	        }

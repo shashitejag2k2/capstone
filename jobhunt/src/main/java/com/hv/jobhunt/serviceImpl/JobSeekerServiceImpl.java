@@ -72,8 +72,17 @@ public class JobSeekerServiceImpl implements JobSeekerService {
 	@Override
 	public String register(JobSeeker jobSeeker) {
 		 try {
-		        jobSeekerRepo.save(jobSeeker);
-		        return "Successfully saved JobSeeker";
+			 boolean exist = jobSeekerRepo.existsByEmailId(jobSeeker.getEmailId());
+			 if (exist) {
+	 	        	System.out.println("bool");
+	 	            return "You have already registered. Please try to log in.";
+	 	        }
+			 else {
+	 	            
+	 	           jobSeekerRepo.save(jobSeeker);
+			        return "Successfully saved JobSeeker";
+	 	        }
+		        
 		    } catch (DataIntegrityViolationException e) {
 		        // Handle data integrity violation exceptions (e.g., duplicate entry)
 		        return "Failed to register: " + e.getMessage();

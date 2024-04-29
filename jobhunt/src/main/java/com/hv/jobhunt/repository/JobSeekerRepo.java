@@ -11,5 +11,6 @@ public interface JobSeekerRepo extends JpaRepository<JobSeeker, Integer> {
 	JobSeeker findByEmailId(String emailId);
 	
 	JobSeeker findByEmailIdAndPassword(String emailId,String Password);
+	boolean existsByEmailId(String emailId);
 
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Email Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center the container */
+        }
+
+        h1 {
+            color: #ffff; /* Green color for the company name */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Add shadow effect */
+            background-color:#DC143C ;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .highlight {
+            background-color: #ffeb3b; /* Yellow background for highlighted names */
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>${companyName}</h1>
+        <p>Hi <span class="highlight">${username}</span>,</p>
+        <p>Congratulations! Your application has been approved.</p>
+        <p>Employeer ID: ${employeerId}</p>
+    </div>
+</body>
+</html>

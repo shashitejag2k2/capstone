@@ -22,8 +22,6 @@ public class Subscription {
     @Column(name = "no_of_jobs")
     private int numberOfJobs;
 
-    @Column(name = "duration")
-    private int duration;
 
     @Column(name = "price")
     private double price;
@@ -61,13 +59,7 @@ public class Subscription {
         this.numberOfJobs = numberOfJobs;
     }
 
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
+    
 
     public double getPrice() {
         return price;
@@ -83,7 +75,7 @@ public class Subscription {
                 "id=" + id +
                 ", subscriptionType='" + subscriptionType + '\'' +
                 ", numberOfJobs=" + numberOfJobs +
-                ", durationDate=" + duration +
+               
                 ", price=" + price +
                 '}';
     }

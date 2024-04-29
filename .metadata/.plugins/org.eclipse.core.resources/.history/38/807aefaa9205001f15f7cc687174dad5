@@ -1,0 +1,193 @@
+package com.hv.jobhunt.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.hv.jobhunt.Models.Admin;
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.Models.Subscription;
+import com.hv.jobhunt.repository.AdminRepo;
+import com.hv.jobhunt.repository.EmployeerRepo;
+import com.hv.jobhunt.repository.SubscriptionRepo;
+import com.hv.jobhunt.services.AdminService;
+
+
+import javax.persistence.*;
+import javax.transaction.Transactional;
+
+
+@Service
+public class AdminServiceImpl implements AdminService {
+	
+	@Autowired
+	private AdminRepo adminRepo;
+	@Autowired
+	private EmployeerRepo employeerRepo;
+	
+	@Autowired
+	private SubscriptionRepo subscriptionRepo;
+	@Override
+	public String login(Admin admin) {
+		
+		 try {
+		        String email = admin.getEmailId();
+		        String password = admin.getPassword();
+		        
+		        Admin adminUser = adminRepo.findByEmailIdAndPassword(email, password);
+		        
+		        if (adminUser != null && adminUser.getPassword().equals(password)) {
+		            return "Login successful";
+		        }
+		        return "Invalid credentials";
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to process admin login: " + e.getMessage());
+		    }
+		}
+
+
+
+	@Override
+	public List<Employeer> getEmployeers() {
+		 try {
+		        List<Employeer> employees = employeerRepo.findAll();
+		        if (employees.isEmpty()) {
+		            throw new RuntimeException("No employees found");
+		        }
+		        return employees;
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to retrieve employees: " + e.getMessage());
+		    }
+	}
+
+	
+
+	@Override
+	public Employeer getIndividualEmployee(int emp_id) {
+		try {
+	        Employeer employee = employeerRepo.findByEmployeeId(emp_id);
+	        return employee;
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to retrieve individual employee: " + e.getMessage());
+	    }
+	}
+
+	@Override
+	@Transactional
+	public String deleteEmployee(int emp_id) {
+		 try {
+		        employeerRepo.deleteByEmployeeId(emp_id);
+		        return "Deleted employeer";
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to delete employeer: " + e.getMessage());
+		    }
+	}
+
+
+
+	@Override
+	public String updateStatus(String status,String emailId) {
+		try {
+	        Employeer employeeToUpdate = employeerRepo.findByEmailId(emailId);
+	        if (employeeToUpdate != null) {
+	            employeeToUpdate.setStatus(status);
+	            employeerRepo.save(employeeToUpdate);
+	            return "Status Updated";
+	        } else {
+	            throw new RuntimeException("Employeer not found with email: " + emailId);
+	        }
+	    }catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to update status: " + e.getMessage());
+		    }
+    
+    }
+
+
+
+	@Override
+	public List<Subscription> getSubscription() {
+		 try {
+		        List<Subscription> subscriptions = subscriptionRepo.findAll();
+		        return subscriptions;
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to fetch subscriptions: " + e.getMessage());
+		    }
+	}
+
+
+
+	@Override
+	public String subscriptionUpdate(Subscription subscription) {
+		 try {
+		        Long id = subscription.getId();
+		        Subscription sub = subscriptionRepo.findById(id);
+		        if (sub != null) {
+		            sub.setSubscriptionType(subscription.getSubscriptionType());
+		            sub.setNumberOfJobs(subscription.getNumberOfJobs());
+		            sub.setPrice(subscription.getPrice());
+		            subscriptionRepo.save(sub);
+		            return "Saved successfully";
+		        } else {
+		        	throw new RuntimeException("Failed to update subscription: ");
+		        }
+		    } catch (Exception e) {
+		        // Log the exception or handle it as needed
+		        throw new RuntimeException("Failed to update subscription: " + e.getMessage());
+		    }
+	}
+
+
+
+	@Override
+	@Transactional
+	public String deleteSubscription(Long id) {
+		try {
+	        if (subscriptionRepo.findById(id) != null) {
+	        	System.out.println("from admin impl");
+	            subscriptionRepo.deleteById(id);
+	            return "Deleted Successfully";
+	        } else {
+	            return "Subscription not found";
+	        }
+	    } catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to delete subscription: " + e.getMessage());
+	    }
+	}
+
+
+
+	@Override
+	public String createSubscription(Subscription subscription) {
+		try {
+				if(subscription!=null) {
+				subscriptionRepo.save(subscription);
+				System.out.println("from if");
+				}
+				else {
+		            throw new IllegalArgumentException("Failed to create subscription: Subscription object is null");
+		        }
+			 
+			
+//	        Subscription newSubscription = new Subscription();
+//	        newSubscription.setSubscriptionType(subscription.getSubscriptionType());
+//	        newSubscription.setDuration(subscription.getDuration());
+//	        newSubscription.setNumberOfJobs(subscription.getNumberOfJobs());
+//	        newSubscription.setPrice(subscription.getPrice());
+//	        subscriptionRepo.save(newSubscription);
+			
+	        return "Subscription Created";
+	    }  catch (Exception e) {
+	        // Log the exception or handle it as needed
+	        throw new RuntimeException("Failed to create subscription: " + e.getMessage());
+	    }
+	}
+}

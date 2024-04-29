@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@Api(tags="Admin Authentication")
+@Api(tags="Employer")
 public class EmployeerController {
 	
 	 	@Autowired
@@ -67,22 +67,27 @@ public class EmployeerController {
 	    }
 	 
 	 @PostMapping("/employeerLogin")
-	 @ApiOperation(value="Authenticate admin user",notes="authenticate admin user withprovided credentials")
+	 @ApiOperation(value="Employer Login")
 	 public ResponseEntity<Employeer> login(@RequestBody Employeer employeer) {
 		 try {
 		        Employeer loginResult = employerService.login(employeer.getEmailId(), employeer.getPassword());
-		        if ("Invalid email or password".equals(loginResult)) {
-		            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-		        } else {
+		        
+		        if (loginResult != null) {
 		            return ResponseEntity.ok().body(loginResult);
+		        } else {
+		            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		        }
-		    } catch (IllegalArgumentException e) {
-		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 		    } catch (RuntimeException e) {
-		        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		        if ("Invalid email or password".equals(e.getMessage())) {
+		        	
+		            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+		        } else {
+		            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+		        }
 		    }
 		}
 	 
+	 @ApiOperation(value="Employer Login")
 	 @PostMapping("/postjob")//byEmployeer
 	    public ResponseEntity<String> addJob(@RequestBody JobListing job) {
 	        try {

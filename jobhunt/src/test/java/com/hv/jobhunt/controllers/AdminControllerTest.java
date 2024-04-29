@@ -213,7 +213,7 @@ class AdminControllerTest {
 	        Subscription subscription = new Subscription();
 	        subscription.setSubscriptionType("Premium");
 	        subscription.setNumberOfJobs(10);
-	        subscription.setDuration(30);
+	        
 	        subscription.setPrice(500.0);
 	        when(adminService.createSubscription(subscription)).thenReturn("Subscription created successfully");
 
@@ -230,7 +230,7 @@ class AdminControllerTest {
 	    public void testCreateSubscriptionFailureInternalServerError() {
 	        Subscription subscription = new Subscription();
 	        subscription.setSubscriptionType("Premium");
-	        subscription.setDuration(3);
+	        
 	        subscription.setPrice(100.0);
 
 	        when(adminService.createSubscription(subscription)).thenThrow(new RuntimeException("Internal server error"));
@@ -248,7 +248,7 @@ class AdminControllerTest {
 	    public void testUpdateSubscriptionSuccess() {
 	        Subscription subscription = new Subscription();
 	        subscription.setSubscriptionType("Premium");
-	        subscription.setDuration(3);
+	        
 	        subscription.setNumberOfJobs(5);
 	        subscription.setPrice(100.0);
 	        
@@ -266,7 +266,7 @@ class AdminControllerTest {
 	    public void testUpdateSubscriptionFailureNotFound() {
 	        Subscription subscription = new Subscription();
 	        subscription.setSubscriptionType("Premium");
-	        subscription.setDuration(3);
+	        
 	        subscription.setNumberOfJobs(5);
 	        subscription.setPrice(100.0);
 	       
@@ -284,7 +284,7 @@ class AdminControllerTest {
 	    public void testUpdateSubscriptionFailureInternalServerError() {
 	        Subscription subscription = new Subscription();
 	        subscription.setSubscriptionType("Premium");
-	        subscription.setDuration(3);
+	        
 	        subscription.setNumberOfJobs(5);
 	        subscription.setPrice(100.0);
 	        
@@ -351,14 +351,14 @@ class AdminControllerTest {
 	    Subscription subscription1 = new Subscription();
 	   
 	    subscription1.setSubscriptionType("Premium");
-	    subscription1.setDuration(3);
+	
 	    subscription1.setNumberOfJobs(5);
 	    subscription1.setPrice(100.0);
 
 	    Subscription subscription2 = new Subscription();
 	    
 	    subscription2.setSubscriptionType("Basic");
-	    subscription2.setDuration(1);
+	    
 	    subscription2.setNumberOfJobs(3);
 	    subscription2.setPrice(50.0);
 

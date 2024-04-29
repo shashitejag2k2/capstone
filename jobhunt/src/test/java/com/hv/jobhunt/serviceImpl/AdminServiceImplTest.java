@@ -305,14 +305,14 @@ class AdminServiceImplTest {
         Subscription subscription1 = new Subscription();
         subscription1.setSubscriptionType("Basic");
         subscription1.setNumberOfJobs(10);
-        subscription1.setDuration(30);
+        
         subscription1.setPrice(9.99);
         subscriptionRepo.save(subscription1);
 
         Subscription subscription2 = new Subscription();
         subscription2.setSubscriptionType("Premium");
         subscription2.setNumberOfJobs(50);
-        subscription2.setDuration(90);
+        
         subscription2.setPrice(29.99);
         subscriptionRepo.save(subscription2);
         
@@ -383,7 +383,7 @@ class AdminServiceImplTest {
         subscription.setId(-1L);
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+        
         subscription.setPrice(9.99);
 
         // Test: call the subscriptionUpdate method with the invalid subscription object
@@ -400,7 +400,7 @@ class AdminServiceImplTest {
         subscription.setId(1L);
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+       
         subscription.setPrice(9.99);
 
         // Test: call the subscriptionUpdate method with the subscription object
@@ -417,7 +417,7 @@ class AdminServiceImplTest {
         subscription.setId(null);
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+        
         subscription.setPrice(9.99);
 
         // Test: call the subscriptionUpdate method with the invalid subscription object
@@ -437,7 +437,7 @@ class AdminServiceImplTest {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+        
         subscription.setPrice(9.99);
         subscriptionRepo.save(subscription);
 
@@ -467,7 +467,7 @@ class AdminServiceImplTest {
         subscription.setId(null);
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+       
         subscription.setPrice(9.99);
 
         // Test: call the deleteSubscription method with the invalid subscription object
@@ -486,7 +486,7 @@ class AdminServiceImplTest {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionType("Basic");
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+        
         subscription.setPrice(9.99);
 
         // Test: call the createSubscription method with the valid subscription object
@@ -508,7 +508,7 @@ class AdminServiceImplTest {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionType(null);
         subscription.setNumberOfJobs(10);
-        subscription.setDuration(30);
+      
         subscription.setPrice(9.99);
 
         // Test: call the createSubscription method with the invalid subscription object

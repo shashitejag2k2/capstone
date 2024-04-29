@@ -169,19 +169,19 @@ public class AdminServiceImpl implements AdminService {
 	public String createSubscription(Subscription subscription) {
 		try {
 				if(subscription!=null) {
-				subscriptionRepo.save(subscription);
+					Subscription subs  = new Subscription();
+					System.out.println("from if");
+					subs.setNumberOfJobs(subscription.getNumberOfJobs());
+					subs.setSubscriptionType(subscription.getSubscriptionType());
+					subs.setPrice(subscription.getPrice());
+					subscriptionRepo.save(subs);
+				
 				}
 				else {
+					System.out.println("from else");
 		            throw new IllegalArgumentException("Failed to create subscription: Subscription object is null");
 		        }
 			 
-			
-//	        Subscription newSubscription = new Subscription();
-//	        newSubscription.setSubscriptionType(subscription.getSubscriptionType());
-//	        newSubscription.setDuration(subscription.getDuration());
-//	        newSubscription.setNumberOfJobs(subscription.getNumberOfJobs());
-//	        newSubscription.setPrice(subscription.getPrice());
-//	        subscriptionRepo.save(newSubscription);
 			
 	        return "Subscription Created";
 	    }  catch (Exception e) {

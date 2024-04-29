@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rejection Email Template</title>
+    <title>Approval Email Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,10 +19,14 @@
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center the container */
         }
 
         h1 {
-            color: #333;
+            color: #ffff; /* Green color for the company name */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Add shadow effect */
+            background-color:#DC143C ;
+            padding: 1em;
         }
 
         p {
@@ -42,15 +46,20 @@
         .button:hover {
             background-color: #0056b3;
         }
+
+        .highlight {
+            background-color: #ffeb3b; /* Yellow background for highlighted names */
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
     </style>
 </head>
-
-
 <body>
-    <h1>${companyName}</h1>
-    <p>Hi ${username},</p>
-    <p>We regret to inform you that your application has been rejected.</p>
-    
-    <p>{employeerId}</p>
+    <div class="container">
+        <h1>${companyName}</h1>
+        <p>Hi <span class="highlight">${username}</span>,</p>
+        <p>We regret to inform you that your application will not be moving forward</p>
+        <p>Employeer ID: ${employeerId}</p>
+    </div>
 </body>
 </html>

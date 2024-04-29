@@ -104,24 +104,32 @@ public class EmployeerServiceImpl implements EmployeerService {
 	
 	@Override
 	public Employeer login(String emailId, String password) {
-		if (emailId == null || password == null || emailId.isEmpty() || password.isEmpty()) {
-	        throw new IllegalArgumentException("Email and password cannot be empty");
-	    }
-	    
-	    Employeer employerUser = employeerRepo.findByEmailIdAndPassword(emailId, password);
-	    
-	    if (employerUser != null && employerUser.getEmailId().equals(emailId) && employerUser.getPassword().equals(password)) {
-	        String status = employerUser.getStatus();
-	        if ("pending".equals(status)) {
-	        	throw new RuntimeException("You are not onboarded yet");
-	        } else if ("reject".equals(status)) {
-	            throw new RuntimeException("Your request has been rejected by the admin");
-	        } else {
-	            return employerUser;
-	        }
-	    } else {
-	        throw new RuntimeException("Invalid email or password");
-	    }
+		 try {
+		        if (emailId == null || password == null || emailId.isEmpty() || password.isEmpty()) {
+		            throw new IllegalArgumentException("Email and password cannot be empty");
+		        }
+
+		        Employeer employerUser = employeerRepo.findByEmailIdAndPassword(emailId, password);
+
+		        if (employerUser != null && employerUser.getEmailId().equals(emailId) && employerUser.getPassword().equals(password)) {
+		            String status = employerUser.getStatus();
+		            if ("pending".equals(status)) {
+		                throw new RuntimeException("You are not onboarded yet");
+		            } else if ("reject".equals(status)) {
+		                throw new RuntimeException("Your request has been rejected by the admin");
+		            } else {
+		                return employerUser;
+		            }
+		        } else {
+		            throw new RuntimeException("Invalid email or password");
+		        }
+		    } catch (IllegalArgumentException e) {
+		        throw new RuntimeException(e.getMessage());
+		    } catch (RuntimeException e) {
+		        throw e;
+		    } catch (Exception e) {
+		        throw new RuntimeException("An unexpected error occurred while logging in");
+		    }
 
 }
 	
@@ -407,7 +415,7 @@ public class EmployeerServiceImpl implements EmployeerService {
 		try {
 		    MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		    MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-		    helper.setSubject("From springBoot");
+		    helper.setSubject("Job Hunt");
 		    helper.setTo(jobseekerMailId);
 		    Employeer employee = employeerRepo.findByEmailId(employeerEmailId);
 		    if (employee == null) {
