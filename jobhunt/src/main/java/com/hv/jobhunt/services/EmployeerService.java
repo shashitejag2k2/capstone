@@ -21,7 +21,7 @@ public interface EmployeerService {
 	 String updateJob(JobListing jobListing);
 	 String updateJobApplicationStatus(int jobId);
 	 
-	 List<JobSeeker> getDatails (int jobId,String employeerMail);
+	 List<JobSeeker> getDetails (int jobId,String employeerMail);
 	 
 	 Map<String, String> getCount(String employeerMail);
 	

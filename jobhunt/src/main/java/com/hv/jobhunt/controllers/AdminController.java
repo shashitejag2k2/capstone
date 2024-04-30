@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -100,13 +101,7 @@ public class AdminController {
 	    }
     }
 	
-	@PutMapping("/updatePlan")//pending
-    public ResponseEntity<String> updatePlan(@RequestParam("EmpId") int Emp_id) {
-	 
-		String employee = adminService.deleteEmployee(Emp_id);
-        
-		return new ResponseEntity<>("Employeer Deleted Successfully", HttpStatus.OK);
-    }
+	
 	
 	@PutMapping("/postStatus")//returns the employeers for status approve or reject 
     public ResponseEntity<String> getEmployeers(@RequestParam("status") String status, @RequestParam("emailId") String email ) {

@@ -25,438 +25,384 @@ import com.hv.jobhunt.Models.JobSeeker;
 import com.hv.jobhunt.repository.JobAppliedRepository;
 import com.hv.jobhunt.repository.JobRepository;
 import com.hv.jobhunt.repository.JobSeekerRepo;
+
 @ExtendWith(MockitoExtension.class)
 class JobSeekerServiceImplTest {
-	
+
 	@Mock
 	private JobAppliedRepository jobAppliedRepository;
-	
+
 	@Mock
 	private JobRepository jobRepository;
-	
+
 	@Mock
 	private JobSeekerRepo jobSeekerRepo;
-	
+
 	@InjectMocks
-    private JobSeekerServiceImpl jobSeekerServiceImpl;
-	
-	 @Test
-	    public void register_Success() {
-	        // Arrange
-		 JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com");
-	        jobSeeker.setPassword("password123");
-	        jobSeeker.setCollegeName("ABC University");
-	        jobSeeker.setExperience("2 years");
-	        jobSeeker.setSkills("Java, Spring, Hibernate");
-	        // Set jobSeeker properties as needed for a successful registration
-
-	        Mockito.doNothing().when(jobSeekerRepo).save(jobSeeker);
-
-	        // Act
-	        String result = jobSeekerServiceImpl.register(jobSeeker);
-
-	        // Assert
-	        assertEquals("Successfully saved JobSeeker", result);
-	    }
-	 @Test
-	    public void register_Exception() {
-	        // Arrange
-	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com");
-	        jobSeeker.setPassword("password123");
-	        jobSeeker.setCollegeName("ABC University");
-	        jobSeeker.setExperience("2 years");
-	        jobSeeker.setSkills("Java, Spring, Hibernate");
-	        // Set jobSeeker properties as needed for a registration that will result in any other exception
-
-	        Mockito.doThrow(new RuntimeException("Unexpected error")).when(jobSeekerRepo).save(jobSeeker);
-
-	        // Act
-	        String result = jobSeekerServiceImpl.register(jobSeeker);
-
-	        // Assert
-	        assertEquals("Failed to register due to an unexpected error: Unexpected error", result);
-	    }
-	 @Test
-	    public void login_Success() {
-	        // Arrange
-	        String email = "test@example.com";
-	        String password = "password123";
-	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setEmailId(email);
-	        jobSeeker.setPassword(password);
-
-	        Mockito.when(jobSeekerRepo.findByEmailIdAndPassword(email, password)).thenReturn(jobSeeker);
-
-	        // Act
-	        String result = jobSeekerServiceImpl.login(jobSeeker);
-
-	        // Assert
-	        assertEquals("User login successful", result);
-	    }
-	 @Test
-	    public void login_InvalidCredentials() {
-	        // Arrange
-	        String email = "test@example.com";
-	        String password = "password123";
-	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setEmailId(email);
-	        jobSeeker.setPassword(password);
-
-	        Mockito.when(jobSeekerRepo.findByEmailIdAndPassword(email, password)).thenReturn(null);
-
-	        // Act
-	        String result = jobSeekerServiceImpl.login(jobSeeker);
-
-	        // Assert
-	        assertEquals("Invalid credentials", result);
-	    }
-
-	 
+	private JobSeekerServiceImpl jobSeekerServiceImpl;
 
 	@Test
-    void testApplyJob_Success() {
-        // Test case for successful job application
+	public void register_Success() {
 
-        // Mock input data
-        AppliedJobs jobApplication = new AppliedJobs();
-        jobApplication.setAppliedBy("user@example.com");
-        jobApplication.setJobId(123);
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setName("John Doe");
+		jobSeeker.setEmailId("john.doe@example.com");
+		jobSeeker.setPassword("password123");
+		jobSeeker.setCollegeName("ABC University");
+		jobSeeker.setExperience("2 years");
+		jobSeeker.setSkills("Java, Spring, Hibernate");
 
-        // Mock repository behavior
-        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(null);
+		Mockito.doNothing().when(jobSeekerRepo).save(jobSeeker);
 
-        // Calling the service method
-        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+		String result = jobSeekerServiceImpl.register(jobSeeker);
 
-        // Assertions
-        assertEquals("Job application saved successfully", result);
+		assertEquals("Successfully saved JobSeeker", result);
+	}
 
-        // Verify interactions
-        verify(jobAppliedRepository, times(1)).save(jobApplication);
-    }
-	
 	@Test
-    void testApplyJob_AlreadyApplied() {
-        // Test case for when the user has already applied for the job
+	public void register_Exception() {
 
-        // Mock input data
-        AppliedJobs jobApplication = new AppliedJobs();
-        jobApplication.setAppliedBy("user@example.com");
-        jobApplication.setJobId(123);
-        jobApplication.setPostedBy("employer@example.com");
-        jobApplication.setJobTitle("Software Developer");
-        jobApplication.setStatus("pending");
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setName("John Doe");
+		jobSeeker.setEmailId("john.doe@example.com");
+		jobSeeker.setPassword("password123");
+		jobSeeker.setCollegeName("ABC University");
+		jobSeeker.setExperience("2 years");
+		jobSeeker.setSkills("Java, Spring, Hibernate");
 
-        // Mock repository behavior
-        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(jobApplication);
+		Mockito.doThrow(new RuntimeException("Unexpected error")).when(jobSeekerRepo).save(jobSeeker);
 
-        // Calling the service method
-        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+		String result = jobSeekerServiceImpl.register(jobSeeker);
 
-        // Assertions
-        assertEquals("You have already applied for this job", result);
+		assertEquals("Failed to register due to an unexpected error: Unexpected error", result);
+	}
 
-        // Verify interactions
-        verify(jobAppliedRepository, never()).save(any());
-    }
-	
-	 @Test
-	    void testApplyJob_Exception() {
-	        // Test case for when an unexpected error occurs during job application
+	@Test
+	public void login_Success() {
 
-	        // Mock input data
-	        AppliedJobs jobApplication = new AppliedJobs();
-	        jobApplication.setAppliedBy("user@example.com");
-	        jobApplication.setJobId(123);
-	        jobApplication.setPostedBy("employer@example.com");
-	        jobApplication.setJobTitle("Software Developer");
-	        jobApplication.setStatus("pending");
+		String email = "test@example.com";
+		String password = "password123";
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setEmailId(email);
+		jobSeeker.setPassword(password);
 
-	        // Mock repository behavior to simulate an exception
-	        when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenThrow(new RuntimeException("Test exception"));
+		Mockito.when(jobSeekerRepo.findByEmailIdAndPassword(email, password)).thenReturn(jobSeeker);
 
-	        // Calling the service method
-	        String result = jobSeekerServiceImpl.applyJob(jobApplication);
+		String result = jobSeekerServiceImpl.login(jobSeeker);
 
-	        // Assertions
-	        assertEquals("Failed to save job application due to an unexpected error", result);
+		assertEquals("User login successful", result);
+	}
 
-	        // Verify interactions
-	        verify(jobAppliedRepository, never()).save(any());
-	    }
-	 
-	 @Test 
-	 public void testGetJobs_ReturnsNonEmptyList() 
-	 {
-		 
-		 JobListing jobListing1 = new JobListing(); 
-		 jobListing1.setJobId(1); 
-		 jobListing1.setJobTitle("Software Engineer");
-		 jobListing1.setEmployeeType("Full-time"); 
-		 jobListing1.setLocation("New York"); 
-		 jobListing1.setCompanyName("ABC Company"); 
-		 jobListing1.setMinimumSalary(80000.0); 
-		 jobListing1.setMaximumSalary(120000.0);
-		 jobListing1.setPostedBy("John Doe");
-		 
-		 JobListing jobListing2 = new JobListing(); 
-		 jobListing2.setJobId(2); 
-		 jobListing2.setJobTitle("Product Manager"); 
-		 jobListing2.setEmployeeType("Full-time"); 
-		 jobListing2.setLocation("San Francisco");
-		 jobListing2.setCompanyName("XYZ Company"); 
-		 jobListing2.setMinimumSalary(100000.0); 
-		 jobListing2.setMaximumSalary(150000.0); 
-		 jobListing2.setPostedBy("Jane Smith");
+	@Test
+	public void login_InvalidCredentials() {
 
-		 List<JobListing> expectedJobListings = Arrays.asList(jobListing1, jobListing2); 
-		// Mockito.when(jobRepository.findAll()).thenReturn(expectedJobListings);
+		String email = "test@example.com";
+		String password = "password123";
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setEmailId(email);
+		jobSeeker.setPassword(password);
 
-		 when(jobRepository.findAll()).thenReturn(expectedJobListings);
-		 List<JobListing> actualJobListings = jobSeekerServiceImpl.getjobs();
+		Mockito.when(jobSeekerRepo.findByEmailIdAndPassword(email, password)).thenReturn(null);
 
-	        // Assert 
-	        assertEquals(expectedJobListings, actualJobListings);
+		String result = jobSeekerServiceImpl.login(jobSeeker);
 
-		 // Act List<JobListing> actualJobListings = jobService.getJobs();
+		assertEquals("Invalid credentials", result);
+	}
 
-		 // Assert assertEquals(expectedJobListings, actualJobListings); }
-	 
-	 
-}
-	 @Test
+	@Test
+	void testApplyJob_Success() {
+
+		AppliedJobs jobApplication = new AppliedJobs();
+		jobApplication.setAppliedBy("user@example.com");
+		jobApplication.setJobId(123);
+
+		when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(null);
+
+		String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+		assertEquals("Job application saved successfully", result);
+
+		verify(jobAppliedRepository, times(1)).save(jobApplication);
+	}
+
+	@Test
+	void testApplyJob_AlreadyApplied() {
+
+		AppliedJobs jobApplication = new AppliedJobs();
+		jobApplication.setAppliedBy("user@example.com");
+		jobApplication.setJobId(123);
+		jobApplication.setPostedBy("employer@example.com");
+		jobApplication.setJobTitle("Software Developer");
+		jobApplication.setStatus("pending");
+
+		when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123)).thenReturn(jobApplication);
+
+		String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+		assertEquals("You have already applied for this job", result);
+
+		verify(jobAppliedRepository, never()).save(any());
+	}
+
+	@Test
+	void testApplyJob_Exception() {
+
+		AppliedJobs jobApplication = new AppliedJobs();
+		jobApplication.setAppliedBy("user@example.com");
+		jobApplication.setJobId(123);
+		jobApplication.setPostedBy("employer@example.com");
+		jobApplication.setJobTitle("Software Developer");
+		jobApplication.setStatus("pending");
+
+		when(jobAppliedRepository.findByAppliedByAndJobId("user@example.com", 123))
+				.thenThrow(new RuntimeException("Test exception"));
+
+		String result = jobSeekerServiceImpl.applyJob(jobApplication);
+
+		assertEquals("Failed to save job application due to an unexpected error", result);
+
+		verify(jobAppliedRepository, never()).save(any());
+	}
+
+	@Test
+	public void testGetJobs_ReturnsNonEmptyList() {
+
+		JobListing jobListing1 = new JobListing();
+		jobListing1.setJobId(1);
+		jobListing1.setJobTitle("Software Engineer");
+		jobListing1.setEmployeeType("Full-time");
+		jobListing1.setLocation("New York");
+		jobListing1.setCompanyName("ABC Company");
+		jobListing1.setMinimumSalary(80000.0);
+		jobListing1.setMaximumSalary(120000.0);
+		jobListing1.setPostedBy("John Doe");
+
+		JobListing jobListing2 = new JobListing();
+		jobListing2.setJobId(2);
+		jobListing2.setJobTitle("Product Manager");
+		jobListing2.setEmployeeType("Full-time");
+		jobListing2.setLocation("San Francisco");
+		jobListing2.setCompanyName("XYZ Company");
+		jobListing2.setMinimumSalary(100000.0);
+		jobListing2.setMaximumSalary(150000.0);
+		jobListing2.setPostedBy("Jane Smith");
+
+		List<JobListing> expectedJobListings = Arrays.asList(jobListing1, jobListing2);
+
+		when(jobRepository.findAll()).thenReturn(expectedJobListings);
+		List<JobListing> actualJobListings = jobSeekerServiceImpl.getjobs();
+
+		assertEquals(expectedJobListings, actualJobListings);
+
+	}
+
+	@Test
 	 public void testGetJobs_ReturnsEmptyList() {
-	     // Arrange
+	     
 	     when(jobRepository.findAll()).thenReturn(Collections.emptyList());
 
-	     // Act
 	     List<JobListing> actualJobListings = jobSeekerServiceImpl.getjobs();
 
-	     // Assert
 	     assertTrue(actualJobListings.isEmpty());
 	 }
-	 
-	 @Test
+
+	@Test
 	 public void testGetJobs_ThrowsRuntimeException() {
-	     // Arrange
+	    
 	     when(jobRepository.findAll()).thenThrow(new RuntimeException("Database error"));
 
-	     // Act and Assert
+	     
 	     assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.getjobs());
 	 }
-	 
-	 @Test
-	 public void testUpdateProfile_JobSeekerIdExists_ProfileUpdated_ReturnsSuccessMessage() {
-	     // Arrange
-		 // Arrange
-	        int jobSeekerId = 1;
-	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setJobSeekerId(jobSeekerId);
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com"); // Update to emailId
-	        jobSeeker.setPassword("password"); // Added
-	        jobSeeker.setCollegeName("ABC University"); // Added
-	        jobSeeker.setExperience("3 years"); // Added
-	        jobSeeker.setSkills("Java, Python, SQL");
-	        
-	        
-	        when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(jobSeeker);
 
-	        // Act
-	        String result = jobSeekerServiceImpl.updateProfile(jobSeeker);
+	@Test
+	public void testUpdateProfile_JobSeekerIdExists_ProfileUpdated_ReturnsSuccessMessage() {
 
-	        // Assert
-	        assertEquals("Profile Updated successfully", result);
-	        verify(jobSeekerRepo).save(jobSeeker);
-	    }
-	 
-	 @Test
-	 public void testUpdateProfile_JobSeekerIdDoesNotExist_ReturnsFailureMessage() {
-	     // Arrange
-	     int jobSeekerId = 999;
-	     	JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setJobSeekerId(jobSeekerId);
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com"); // Update to emailId
-	        jobSeeker.setPassword("password"); // Added
-	        jobSeeker.setCollegeName("ABC University"); // Added
-	        jobSeeker.setExperience("3 years"); // Added
-	        jobSeeker.setSkills("Java, Python, SQL");
-	     when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(null);
+		int jobSeekerId = 1;
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setJobSeekerId(jobSeekerId);
+		jobSeeker.setName("John Doe");
+		jobSeeker.setEmailId("john.doe@example.com");
+		jobSeeker.setPassword("password");
+		jobSeeker.setCollegeName("ABC University");
+		jobSeeker.setExperience("3 years");
+		jobSeeker.setSkills("Java, Python, SQL");
 
-	     // Act
-	     String result = jobSeekerServiceImpl.updateProfile(jobSeeker);
+		when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(jobSeeker);
 
-	     // Assert
-	     assertEquals("Not saved", result);
-	 }
-	 @Test
-	 public void testUpdateProfile_DatabaseError_ThrowsRuntimeException() {
-	     // Arrange
-	     int jobSeekerId = 1;
-	     JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setJobSeekerId(jobSeekerId);
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com"); // Update to emailId
-	        jobSeeker.setPassword("password"); // Added
-	        jobSeeker.setCollegeName("ABC University"); // Added
-	        jobSeeker.setExperience("3 years"); // Added
-	        jobSeeker.setSkills("Java, Python, SQL");
-	     when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(jobSeeker);
-	     doThrow(new RuntimeException("Database error")).when(jobSeekerRepo).save(jobSeeker);
+		String result = jobSeekerServiceImpl.updateProfile(jobSeeker);
 
-	     // Act and Assert
-	     assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.updateProfile(jobSeeker));
-	 }
-	 
-	 @Test
-	 public void testGetJobAppliedDetails_UserHasApplications_ReturnsNonEmptyList() {
-	     // Arrange
-	     String appliedBy = "john.doe@example.com";
-	     
-	     AppliedJobs appliedJob1 = new AppliedJobs();
-	       
-	        appliedJob1.setJobId(1);
-	        appliedJob1.setJobTitle("Software Engineer");
-	        appliedJob1.setPostedBy("ABC Company");
-	        appliedJob1.setStatus("Pending");
-	        appliedJob1.setAppliedBy(appliedBy);
-	        
-	     AppliedJobs appliedJob2 = new AppliedJobs();
-	       
-	        appliedJob2.setJobId(2);
-	        appliedJob2.setJobTitle("Product Manager");
-	        appliedJob2.setPostedBy("XYZ Company");
-	        appliedJob2.setStatus("Rejected");
-	        appliedJob2.setAppliedBy(appliedBy);
-	       List <AppliedJobs> expectedApplications = Arrays.asList(appliedJob1,appliedJob2);
-	        
-	        
-	     when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenReturn(expectedApplications);
+		assertEquals("Profile Updated successfully", result);
+		verify(jobSeekerRepo).save(jobSeeker);
+	}
 
-	     // Act
-	     List<AppliedJobs> actualApplications = jobSeekerServiceImpl.getJobAppliedDetails(appliedBy);
+	@Test
+	public void testUpdateProfile_JobSeekerIdDoesNotExist_ReturnsFailureMessage() {
 
-	     // Assert
-	     assertEquals(expectedApplications, actualApplications);
-	 }
-	 
-	 @Test
-	 public void testGetJobAppliedDetails_UserHasNoApplications_ReturnsEmptyList() {
-	     // Arrange
-	     String appliedBy = "jane.doe@example.com";
-	     when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenReturn(Collections.emptyList());
+		int jobSeekerId = 999;
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setJobSeekerId(jobSeekerId);
+		jobSeeker.setName("John Doe");
+		jobSeeker.setEmailId("john.doe@example.com");
+		jobSeeker.setPassword("password");
+		jobSeeker.setCollegeName("ABC University");
+		jobSeeker.setExperience("3 years");
+		jobSeeker.setSkills("Java, Python, SQL");
+		when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(null);
 
-	     // Act
-	     List<AppliedJobs> actualApplications = jobSeekerServiceImpl.getJobAppliedDetails(appliedBy);
+		String result = jobSeekerServiceImpl.updateProfile(jobSeeker);
 
-	     // Assert
-	     assertTrue(actualApplications.isEmpty());
-	 }
-	 @Test
-	 public void testGetJobAppliedDetails_DatabaseError_ThrowsRuntimeException() {
-	     // Arrange
-	     String appliedBy = "john.doe@example.com";
-	     when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenThrow(new RuntimeException("Database error"));
+		assertEquals("Not saved", result);
+	}
 
-	     // Act and Assert
-	     assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.getJobAppliedDetails(appliedBy));
-	 }
-	 
-	 @Test
-	 public void testSearchJobListings_KeywordMatchesJobTitle_ReturnsNonEmptyList() {
-	     // Arrange
-	     String keyword = "Software Engineer";
-	     JobListing jobListing1 = new JobListing();
-	        jobListing1.setJobId(1);
-	        jobListing1.setJobTitle("Software Engineer");
-	        jobListing1.setEmployeeType("Full-time");
-	        jobListing1.setLocation("New York");
-	        jobListing1.setCompanyName("ABC Company");
-	        jobListing1.setMinimumSalary(80000.0);
-	        jobListing1.setMaximumSalary(120000.0);
-	        jobListing1.setPostedBy("John Doe");
+	@Test
+	public void testUpdateProfile_DatabaseError_ThrowsRuntimeException() {
 
-	        JobListing jobListing2 = new JobListing();
-	        jobListing2.setJobId(2);
-	        jobListing2.setJobTitle("Software Engineer Intern");
-	        jobListing2.setEmployeeType("Part-time");
-	        jobListing2.setLocation("San Francisco");
-	        jobListing2.setCompanyName("XYZ Company");
-	        jobListing2.setMinimumSalary(50000.0);
-	        jobListing2.setMaximumSalary(60000.0);
-	        jobListing2.setPostedBy("Jane Smith");
-	        List<JobListing> expectedJobListings = Arrays.asList(jobListing1,jobListing2);
-	     when(jobRepository.findByJobTitleContainingIgnoreCase(keyword)).thenReturn(expectedJobListings);
+		int jobSeekerId = 1;
+		JobSeeker jobSeeker = new JobSeeker();
+		jobSeeker.setJobSeekerId(jobSeekerId);
+		jobSeeker.setName("John Doe");
+		jobSeeker.setEmailId("john.doe@example.com");
+		jobSeeker.setPassword("password");
+		jobSeeker.setCollegeName("ABC University");
+		jobSeeker.setExperience("3 years");
+		jobSeeker.setSkills("Java, Python, SQL");
+		when(jobSeekerRepo.findByJobSeekerId(jobSeekerId)).thenReturn(jobSeeker);
+		doThrow(new RuntimeException("Database error")).when(jobSeekerRepo).save(jobSeeker);
 
-	     // Act
-	     List<JobListing> actualJobListings = jobSeekerServiceImpl.searchJobListings(keyword);
+		assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.updateProfile(jobSeeker));
+	}
 
-	     // Assert
-	     assertEquals(expectedJobListings, actualJobListings);
-	 }
-	 
-	 @Test
-	 public void testSearchJobListings_KeywordDoesNotMatchAnyJobTitle_ReturnsEmptyList() {
-	     // Arrange
-	     String keyword = "Marketing";
-	     when(jobRepository.findByJobTitleContainingIgnoreCase(keyword)).thenReturn(Collections.emptyList());
+	@Test
+	public void testGetJobAppliedDetails_UserHasApplications_ReturnsNonEmptyList() {
 
-	     // Act
-	     List<JobListing> actualJobListings = jobSeekerServiceImpl.searchJobListings(keyword);
+		String appliedBy = "john.doe@example.com";
 
-	     // Assert
-	     assertTrue(actualJobListings.isEmpty());
-	 }
-	 
-	 @Test
-	 public void testSearchJobListings_DatabaseError_ThrowsRuntimeException() {
-	     // Arrange
-	     String keyword = "Software Engineer";
-	     when(jobRepository.findByJobTitleContainingIgnoreCase(keyword)).thenThrow(new RuntimeException("Database error"));
+		AppliedJobs appliedJob1 = new AppliedJobs();
 
-	     // Act and Assert
-	     assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.searchJobListings(keyword));
-	 }
-	 
-	 @Test
-	 public void testGetJobSeekerDetails_EmailIdExists_ReturnsJobSeeker() {
-	     // Arrange
-		 String email = "john.doe@example.com";
-	        
-	        JobSeeker expectedJobSeeker = new JobSeeker();
-	        expectedJobSeeker.setJobSeekerId(123);
-	        expectedJobSeeker.setName("John Doe");
-	        expectedJobSeeker.setEmailId(email); // Update to emailId
-	        expectedJobSeeker.setPassword("password"); // Added
-	        expectedJobSeeker.setCollegeName("ABC University"); // Added
-	        expectedJobSeeker.setExperience("3 years"); // Added
-	        expectedJobSeeker.setSkills("Java, Python, SQL");
-	     when(jobSeekerRepo.findByEmailId(email)).thenReturn(expectedJobSeeker);
+		appliedJob1.setJobId(1);
+		appliedJob1.setJobTitle("Software Engineer");
+		appliedJob1.setPostedBy("ABC Company");
+		appliedJob1.setStatus("Pending");
+		appliedJob1.setAppliedBy(appliedBy);
 
-	     // Act
-	     JobSeeker actualJobSeeker = jobSeekerServiceImpl.getJobSeekerDetails(email);
+		AppliedJobs appliedJob2 = new AppliedJobs();
 
-	     // Assert
-	     assertEquals(expectedJobSeeker, actualJobSeeker);
-	 }
-	 
-	 @Test
-	 public void testGetJobSeekerDetails_EmailIdDoesNotExist_ReturnsNull() {
-	     // Arrange
-	     String email = "nonexistent@example.com";
-	     when(jobSeekerRepo.findByEmailId(email)).thenReturn(null);
+		appliedJob2.setJobId(2);
+		appliedJob2.setJobTitle("Product Manager");
+		appliedJob2.setPostedBy("XYZ Company");
+		appliedJob2.setStatus("Rejected");
+		appliedJob2.setAppliedBy(appliedBy);
+		List<AppliedJobs> expectedApplications = Arrays.asList(appliedJob1, appliedJob2);
 
-	     // Act
-	     JobSeeker actualJobSeeker = jobSeekerServiceImpl.getJobSeekerDetails(email);
+		when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenReturn(expectedApplications);
 
-	     // Assert
-	     assertNull(actualJobSeeker);
-	 }
-	 
-	 
+		List<AppliedJobs> actualApplications = jobSeekerServiceImpl.getJobAppliedDetails(appliedBy);
+
+		assertEquals(expectedApplications, actualApplications);
+	}
+
+	@Test
+	public void testGetJobAppliedDetails_UserHasNoApplications_ReturnsEmptyList() {
+
+		String appliedBy = "jane.doe@example.com";
+		when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenReturn(Collections.emptyList());
+
+		List<AppliedJobs> actualApplications = jobSeekerServiceImpl.getJobAppliedDetails(appliedBy);
+
+		assertTrue(actualApplications.isEmpty());
+	}
+
+	@Test
+	public void testGetJobAppliedDetails_DatabaseError_ThrowsRuntimeException() {
+
+		String appliedBy = "john.doe@example.com";
+		when(jobAppliedRepository.findByAppliedBy(appliedBy)).thenThrow(new RuntimeException("Database error"));
+
+		assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.getJobAppliedDetails(appliedBy));
+	}
+
+	@Test
+	public void testSearchJobListings_KeywordMatchesJobTitle_ReturnsNonEmptyList() {
+
+		String keyword = "Software Engineer";
+		JobListing jobListing1 = new JobListing();
+		jobListing1.setJobId(1);
+		jobListing1.setJobTitle("Software Engineer");
+		jobListing1.setEmployeeType("Full-time");
+		jobListing1.setLocation("New York");
+		jobListing1.setCompanyName("ABC Company");
+		jobListing1.setMinimumSalary(80000.0);
+		jobListing1.setMaximumSalary(120000.0);
+		jobListing1.setPostedBy("John Doe");
+
+		JobListing jobListing2 = new JobListing();
+		jobListing2.setJobId(2);
+		jobListing2.setJobTitle("Software Engineer Intern");
+		jobListing2.setEmployeeType("Part-time");
+		jobListing2.setLocation("San Francisco");
+		jobListing2.setCompanyName("XYZ Company");
+		jobListing2.setMinimumSalary(50000.0);
+		jobListing2.setMaximumSalary(60000.0);
+		jobListing2.setPostedBy("Jane Smith");
+		List<JobListing> expectedJobListings = Arrays.asList(jobListing1, jobListing2);
+		when(jobRepository.findByJobTitleContainingIgnoreCase(keyword)).thenReturn(expectedJobListings);
+
+		List<JobListing> actualJobListings = jobSeekerServiceImpl.searchJobListings(keyword);
+
+		assertEquals(expectedJobListings, actualJobListings);
+	}
+
+	@Test
+	public void testSearchJobListings_KeywordDoesNotMatchAnyJobTitle_ReturnsEmptyList() {
+
+		String keyword = "Marketing";
+		when(jobRepository.findByJobTitleContainingIgnoreCase(keyword)).thenReturn(Collections.emptyList());
+
+		List<JobListing> actualJobListings = jobSeekerServiceImpl.searchJobListings(keyword);
+
+		assertTrue(actualJobListings.isEmpty());
+	}
+
+	@Test
+	public void testSearchJobListings_DatabaseError_ThrowsRuntimeException() {
+
+		String keyword = "Software Engineer";
+		when(jobRepository.findByJobTitleContainingIgnoreCase(keyword))
+				.thenThrow(new RuntimeException("Database error"));
+
+		assertThrows(RuntimeException.class, () -> jobSeekerServiceImpl.searchJobListings(keyword));
+	}
+
+	@Test
+	public void testGetJobSeekerDetails_EmailIdExists_ReturnsJobSeeker() {
+
+		String email = "john.doe@example.com";
+
+		JobSeeker expectedJobSeeker = new JobSeeker();
+		expectedJobSeeker.setJobSeekerId(123);
+		expectedJobSeeker.setName("John Doe");
+		expectedJobSeeker.setEmailId(email);
+		expectedJobSeeker.setPassword("password");
+		expectedJobSeeker.setCollegeName("ABC University");
+		expectedJobSeeker.setExperience("3 years");
+		expectedJobSeeker.setSkills("Java, Python, SQL");
+		when(jobSeekerRepo.findByEmailId(email)).thenReturn(expectedJobSeeker);
+
+		JobSeeker actualJobSeeker = jobSeekerServiceImpl.getJobSeekerDetails(email);
+
+		assertEquals(expectedJobSeeker, actualJobSeeker);
+	}
+
+	@Test
+	public void testGetJobSeekerDetails_EmailIdDoesNotExist_ReturnsNull() {
+
+		String email = "nonexistent@example.com";
+		when(jobSeekerRepo.findByEmailId(email)).thenReturn(null);
+
+		JobSeeker actualJobSeeker = jobSeekerServiceImpl.getJobSeekerDetails(email);
+
+		assertNull(actualJobSeeker);
+	}
+
 }

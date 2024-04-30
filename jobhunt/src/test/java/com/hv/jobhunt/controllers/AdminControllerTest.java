@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,358 +23,338 @@ import com.hv.jobhunt.Models.Employeer;
 import com.hv.jobhunt.Models.Subscription;
 import com.hv.jobhunt.repository.EmployeerRepo;
 import com.hv.jobhunt.services.AdminService;
+
 @ExtendWith(MockitoExtension.class)
 class AdminControllerTest {
-	
-	 	@InjectMocks
-	    private AdminController adminController;
 
-	    @Mock
-	    private AdminService adminService;
-	    
-	    @Mock
-	    private EmployeerRepo employeerRepo;
-	    
-	    @Test
-	    public void login_Success() {
-	        // Arrange
-	        Admin admin = new Admin();
-	        admin.setName("admin");
-	        admin.setPassword("admin123");
-	        admin.setEmailId("admin@gmail.com");
+	@InjectMocks
+	private AdminController adminController;
 
-	        Mockito.when(adminService.login(admin)).thenReturn("Login successful");
+	@Mock
+	private AdminService adminService;
 
-	        // Act
-	        ResponseEntity<String> responseEntity = adminController.login(admin);
+	@Mock
+	private EmployeerRepo employeerRepo;
 
-	        // Assert
-	        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-	        assertEquals("Login successful", responseEntity.getBody());
-	    }
-	    @Test
-	    public void login_Unauthorized() {
-	        // Arrange
-	        Admin admin = new Admin();
-	        admin.setName("admin");
-	        admin.setPassword("admin123");
-	        admin.setEmailId("admin@gmail.com");
+	@Test
+	public void login_Success() {
+		// Arrange
+		Admin admin = new Admin();
+		admin.setName("admin");
+		admin.setPassword("admin123");
+		admin.setEmailId("admin@gmail.com");
 
-	        Mockito.when(adminService.login(admin)).thenReturn("Invalid username or password");
+		Mockito.when(adminService.login(admin)).thenReturn("Login successful");
 
-	        // Act
-	        ResponseEntity<String> responseEntity = adminController.login(admin);
+		ResponseEntity<String> responseEntity = adminController.login(admin);
 
-	        // Assert
-	        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
-	        assertEquals("Invalid username or password", responseEntity.getBody());
-	    }
-	    
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		assertEquals("Login successful", responseEntity.getBody());
+	}
 
-	    @Test
-	    public void testGetEmployes() throws Exception {
-	        // Arrange
-	        List<Employeer> expectedEmployees = new ArrayList<>();
-	        Employeer employeer1 = new Employeer();
-	        employeer1.setEmployeeId(1);
-	        employeer1.setName("shashi");
-	        employeer1.setEmailId("shashi@email.com");
-	        employeer1.setPassword("password123");
-	        employeer1.setCompanyName("Hitachi vantara");
-	        employeer1.setSubscriptionType("Premium");
-	        employeer1.setSubscriptionExprirationDate(new Date());
-	        employeer1.setStatus("pending");
+	@Test
+	public void login_Unauthorized() {
+		// Arrange
+		Admin admin = new Admin();
+		admin.setName("admin");
+		admin.setPassword("admin123");
+		admin.setEmailId("admin@gmail.com");
 
-	        Employeer employeer2 = new Employeer();
-	        employeer2.setEmployeeId(2);
-	        employeer2.setName("Teja");
-	        employeer2.setEmailId("Teja@email.com");
-	        employeer2.setPassword("d456");
-	        employeer2.setCompanyName("cognizant");
-	        employeer2.setSubscriptionType("Basic");
-	        employeer2.setSubscriptionExprirationDate(new Date());
-	        employeer2.setStatus("pending");
+		Mockito.when(adminService.login(admin)).thenReturn("Invalid username or password");
 
-	        expectedEmployees.add(employeer1);
-	        expectedEmployees.add(employeer2);
+		ResponseEntity<String> responseEntity = adminController.login(admin);
 
-	        when(adminService.getEmployeers()).thenReturn(expectedEmployees);
+		// Assert
+		assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+		assertEquals("Invalid username or password", responseEntity.getBody());
+	}
 
-	        // Act
-	        ResponseEntity<List<Employeer>> response = adminController.getEmployes();
+	@Test
+	public void testGetEmployes() throws Exception {
 
-	        // Assert
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertIterableEquals(expectedEmployees, response.getBody());
-	    }
-	    
-	    
+		List<Employeer> expectedEmployees = new ArrayList<>();
+		Employeer employeer1 = new Employeer();
+		employeer1.setEmployeeId(1);
+		employeer1.setName("shashi");
+		employeer1.setEmailId("shashi@email.com");
+		employeer1.setPassword("password123");
+		employeer1.setCompanyName("Hitachi vantara");
+		employeer1.setSubscriptionType("Premium");
+		employeer1.setSubscriptionExprirationDate(new Date());
+		employeer1.setStatus("pending");
 
-	    @Test
+		Employeer employeer2 = new Employeer();
+		employeer2.setEmployeeId(2);
+		employeer2.setName("Teja");
+		employeer2.setEmailId("Teja@email.com");
+		employeer2.setPassword("d456");
+		employeer2.setCompanyName("cognizant");
+		employeer2.setSubscriptionType("Basic");
+		employeer2.setSubscriptionExprirationDate(new Date());
+		employeer2.setStatus("pending");
+
+		expectedEmployees.add(employeer1);
+		expectedEmployees.add(employeer2);
+
+		when(adminService.getEmployeers()).thenReturn(expectedEmployees);
+
+		ResponseEntity<List<Employeer>> response = adminController.getEmployes();
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertIterableEquals(expectedEmployees, response.getBody());
+	}
+
+	@Test
 	    public void testGetEmployes_ServiceThrowsException() throws Exception {
-	        // Arrange
+	       
 	        when(adminService.getEmployeers()).thenThrow(new RuntimeException("Error getting employes"));
 
-	        // Act
+	        
 	        ResponseEntity<List<Employeer>> response = adminController.getEmployes();
 
-	        // Assert
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 	        assertEquals(null, response.getBody());
 	    }
-	    
-	    @Test
-	    public void testGetIndividualEmploye() throws Exception {
-	        // Arrange
-	        int empId = 1;
-	        Employeer expectedEmployee = new Employeer();
-	        expectedEmployee.setEmployeeId(empId);
-	        expectedEmployee.setName("shashi");
-	        expectedEmployee.setEmailId("shashi@email.com");
-	        expectedEmployee.setPassword("password123");
-	        expectedEmployee.setCompanyName("Hitachi vantara");
-	        expectedEmployee.setSubscriptionType("Premium");
-	        expectedEmployee.setSubscriptionExprirationDate(new Date());
-	        expectedEmployee.setStatus("pending");
 
-	        when(employeerRepo.findByEmployeeId(empId)).thenReturn(expectedEmployee);
+	@Test
+	public void testGetIndividualEmploye() throws Exception {
 
-	        // Act
-	        ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
+		int empId = 1;
+		Employeer expectedEmployee = new Employeer();
+		expectedEmployee.setEmployeeId(empId);
+		expectedEmployee.setName("shashi");
+		expectedEmployee.setEmailId("shashi@email.com");
+		expectedEmployee.setPassword("password123");
+		expectedEmployee.setCompanyName("Hitachi vantara");
+		expectedEmployee.setSubscriptionType("Premium");
+		expectedEmployee.setSubscriptionExprirationDate(new Date());
+		expectedEmployee.setStatus("pending");
 
-	        // Assert
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals(expectedEmployee, response.getBody());
-	    }
-	    
-	    @Test
-	    public void testGetIndividualEmploye_NotFound() throws Exception {
-	        // Arrange
-	        int empId = 1;
-	        when(adminService.getIndividualEmployee(empId)).thenReturn(null);
+		when(employeerRepo.findByEmployeeId(empId)).thenReturn(expectedEmployee);
 
-	        // Act
-	        ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
+		ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
 
-	        // Assert
-	        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-	        assertEquals(null, response.getBody());
-	    }
-	    
-	    @Test
-	    public void testGetIndividualEmploye_ServiceThrowsException() throws Exception {
-	    // Arrange
-	        int empId = 1;
-	        when(adminService.getIndividualEmployee(empId)).thenThrow(new RuntimeException("Error getting employee"));
-
-	        // Act
-	        ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
-
-	        // Assert
-	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-	        assertEquals(null, response.getBody());
-	    }
-	    
-	    @Test
-	    public void testDeleteEmployeerSuccess() {
-	        // Arrange
-	        int empId = 1;
-	        when(adminService.deleteEmployee(empId)).thenReturn("Employeer deleted successfully");
-
-	        // Act
-	        ResponseEntity<String> response = adminController.deleteEmployeer(empId);
-
-	        // Assert
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Employeer Deleted Successfully", response.getBody());
-	        verify(adminService, times(1)).deleteEmployee(empId);
-	    }
-	    
-	    @Test
-	    public void testGetEmployeersSuccess() {
-	        // Arrange
-	        String status = "Approved";
-	        String email = "test@example.com";
-	        when(adminService.updateStatus(status, email)).thenReturn("Employeer status updated successfully");
-
-	        // Act
-	        ResponseEntity<String> response = adminController.getEmployeers(status, email);
-
-	        // Assert
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Status Updated Successfully", response.getBody());
-	        verify(adminService, times(1)).updateStatus(status, email);
-	    }
-	    
-	    @Test
-	    public void testCreateSubscriptionSuccess() {
-	        // Arrange
-	        Subscription subscription = new Subscription();
-	        subscription.setSubscriptionType("Premium");
-	        subscription.setNumberOfJobs(10);
-	        
-	        subscription.setPrice(500.0);
-	        when(adminService.createSubscription(subscription)).thenReturn("Subscription created successfully");
-
-	        // Act
-	        ResponseEntity<String> response = adminController.createSubscription(subscription);
-
-	        // Assert
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Subscription created successfully", response.getBody());
-	        verify(adminService, times(1)).createSubscription(subscription);
-	    }
-	    
-	    @Test
-	    public void testCreateSubscriptionFailureInternalServerError() {
-	        Subscription subscription = new Subscription();
-	        subscription.setSubscriptionType("Premium");
-	        
-	        subscription.setPrice(100.0);
-
-	        when(adminService.createSubscription(subscription)).thenThrow(new RuntimeException("Internal server error"));
-
-	        try {
-	            ResponseEntity<String> response = adminController.createSubscription(subscription);
-	            fail("Expected RuntimeException to be thrown");
-	        } catch (RuntimeException e) {
-	            assertEquals("Internal server error", e.getMessage());
-	        }
-
-	        verify(adminService, times(1)).createSubscription(subscription);
-	    }
-	    @Test
-	    public void testUpdateSubscriptionSuccess() {
-	        Subscription subscription = new Subscription();
-	        subscription.setSubscriptionType("Premium");
-	        
-	        subscription.setNumberOfJobs(5);
-	        subscription.setPrice(100.0);
-	        
-
-	        when(adminService.subscriptionUpdate(subscription)).thenReturn("Saved successfully");
-
-	        ResponseEntity<String> response = adminController.updateSubscription(subscription);
-
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Saved successfully", response.getBody());
-
-	        verify(adminService, times(1)).subscriptionUpdate(subscription);
-	    }
-	    @Test
-	    public void testUpdateSubscriptionFailureNotFound() {
-	        Subscription subscription = new Subscription();
-	        subscription.setSubscriptionType("Premium");
-	        
-	        subscription.setNumberOfJobs(5);
-	        subscription.setPrice(100.0);
-	       
-
-	        when(adminService.subscriptionUpdate(subscription)).thenReturn("Subscription not found");
-
-	        ResponseEntity<String> response = adminController.updateSubscription(subscription);
-
-	        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-	        assertEquals("Subscription not found", response.getBody());
-
-	        verify(adminService, times(1)).subscriptionUpdate(subscription);
-	    }
-	    @Test
-	    public void testUpdateSubscriptionFailureInternalServerError() {
-	        Subscription subscription = new Subscription();
-	        subscription.setSubscriptionType("Premium");
-	        
-	        subscription.setNumberOfJobs(5);
-	        subscription.setPrice(100.0);
-	        
-
-	        when(adminService.subscriptionUpdate(subscription)).thenThrow(new RuntimeException("Internal server error"));
-
-	        try {
-	            ResponseEntity<String> response = adminController.updateSubscription(subscription);
-	            fail("Expected RuntimeException to be thrown");
-	        } catch (RuntimeException e) {
-	            assertEquals("An error occurred: Internal server error", e.getMessage());
-	        }
-
-	        verify(adminService, times(1)).subscriptionUpdate(subscription);
-	    }
-	    
-	    @Test
-	    public void testDeleteSubscriptionSuccess() {
-	        Long subscriptionId = 1L;
-
-	        when(adminService.deleteSubscription(subscriptionId)).thenReturn("Subscription deleted successfully");
-
-	        ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
-
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Subscription deleted successfully", response.getBody());
-
-	        verify(adminService, times(1)).deleteSubscription(subscriptionId);
-	    }
-	    
-	    @Test
-	    public void testDeleteSubscriptionFailureNotFound() {
-	        Long subscriptionId = 1L;
-
-	        when(adminService.deleteSubscription(subscriptionId)).thenReturn("Subscription not found");
-
-	        ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
-
-	        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-	        assertEquals("Subscription not found", response.getBody());
-
-	        verify(adminService, times(1)).deleteSubscription(subscriptionId);
-	    }
-	    
-	    @Test
-	    public void testDeleteSubscriptionFailureInternalServerError() {
-	        Long subscriptionId = 1L;
-
-	        when(adminService.deleteSubscription(subscriptionId)).thenThrow(new RuntimeException("Internal server error"));
-
-	        try {
-	            ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
-	            fail("Expected RuntimeException to be thrown");
-	        } catch (RuntimeException e) {
-	            assertEquals("An error occurred", e.getMessage());
-	        }
-
-	        verify(adminService, times(1)).deleteSubscription(subscriptionId);
-	    }
-	    
-	    @Test
-	    public void testGetSubscriptionsSuccess() {
-	        List<Subscription> subscriptions = new ArrayList<>();
-	    Subscription subscription1 = new Subscription();
-	   
-	    subscription1.setSubscriptionType("Premium");
-	
-	    subscription1.setNumberOfJobs(5);
-	    subscription1.setPrice(100.0);
-
-	    Subscription subscription2 = new Subscription();
-	    
-	    subscription2.setSubscriptionType("Basic");
-	    
-	    subscription2.setNumberOfJobs(3);
-	    subscription2.setPrice(50.0);
-
-	   
-	    subscriptions.add(subscription1);
-	    subscriptions.add(subscription2);
-	    when(adminService.getSubscription()).thenReturn(subscriptions);
-
-	    ResponseEntity<List<Subscription>> response = adminController.getSubscriptions();
-
-	    assertEquals(HttpStatus.OK, response.getStatusCode());
-	    assertEquals(subscriptions, response.getBody());
-
-	    verify(adminService, times(1)).getSubscription();
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(expectedEmployee, response.getBody());
 	}
-	    
-	    @Test
+
+	@Test
+	public void testGetIndividualEmploye_NotFound() throws Exception {
+
+		int empId = 1;
+		when(adminService.getIndividualEmployee(empId)).thenReturn(null);
+
+		ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
+
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals(null, response.getBody());
+	}
+
+	@Test
+	public void testGetIndividualEmploye_ServiceThrowsException() throws Exception {
+
+		int empId = 1;
+		when(adminService.getIndividualEmployee(empId)).thenThrow(new RuntimeException("Error getting employee"));
+
+		ResponseEntity<Employeer> response = adminController.getIndividualEmploye(empId);
+
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+		assertEquals(null, response.getBody());
+	}
+
+	@Test
+	public void testDeleteEmployeerSuccess() {
+
+		int empId = 1;
+		when(adminService.deleteEmployee(empId)).thenReturn("Employeer deleted successfully");
+
+		ResponseEntity<String> response = adminController.deleteEmployeer(empId);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Employeer Deleted Successfully", response.getBody());
+		verify(adminService, times(1)).deleteEmployee(empId);
+	}
+
+	@Test
+	public void testGetEmployeersSuccess() {
+
+		String status = "Approved";
+		String email = "test@example.com";
+		when(adminService.updateStatus(status, email)).thenReturn("Employeer status updated successfully");
+
+		ResponseEntity<String> response = adminController.getEmployeers(status, email);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Status Updated Successfully", response.getBody());
+		verify(adminService, times(1)).updateStatus(status, email);
+	}
+
+	@Test
+	public void testCreateSubscriptionSuccess() {
+
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Premium");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(500.0);
+		when(adminService.createSubscription(subscription)).thenReturn("Subscription created successfully");
+
+		ResponseEntity<String> response = adminController.createSubscription(subscription);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Subscription created successfully", response.getBody());
+		verify(adminService, times(1)).createSubscription(subscription);
+	}
+
+	@Test
+	public void testCreateSubscriptionFailureInternalServerError() {
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Premium");
+
+		subscription.setPrice(100.0);
+
+		when(adminService.createSubscription(subscription)).thenThrow(new RuntimeException("Internal server error"));
+
+		try {
+			ResponseEntity<String> response = adminController.createSubscription(subscription);
+			fail("Expected RuntimeException to be thrown");
+		} catch (RuntimeException e) {
+			assertEquals("Internal server error", e.getMessage());
+		}
+
+		verify(adminService, times(1)).createSubscription(subscription);
+	}
+
+	@Test
+	public void testUpdateSubscriptionSuccess() {
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Premium");
+
+		subscription.setNumberOfJobs(5);
+		subscription.setPrice(100.0);
+
+		when(adminService.subscriptionUpdate(subscription)).thenReturn("Saved successfully");
+
+		ResponseEntity<String> response = adminController.updateSubscription(subscription);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Saved successfully", response.getBody());
+
+		verify(adminService, times(1)).subscriptionUpdate(subscription);
+	}
+
+	@Test
+	public void testUpdateSubscriptionFailureNotFound() {
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Premium");
+
+		subscription.setNumberOfJobs(5);
+		subscription.setPrice(100.0);
+
+		when(adminService.subscriptionUpdate(subscription)).thenReturn("Subscription not found");
+
+		ResponseEntity<String> response = adminController.updateSubscription(subscription);
+
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals("Subscription not found", response.getBody());
+
+		verify(adminService, times(1)).subscriptionUpdate(subscription);
+	}
+
+	@Test
+	public void testUpdateSubscriptionFailureInternalServerError() {
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Premium");
+
+		subscription.setNumberOfJobs(5);
+		subscription.setPrice(100.0);
+
+		when(adminService.subscriptionUpdate(subscription)).thenThrow(new RuntimeException("Internal server error"));
+
+		try {
+			ResponseEntity<String> response = adminController.updateSubscription(subscription);
+			fail("Expected RuntimeException to be thrown");
+		} catch (RuntimeException e) {
+			assertEquals("An error occurred: Internal server error", e.getMessage());
+		}
+
+		verify(adminService, times(1)).subscriptionUpdate(subscription);
+	}
+
+	@Test
+	public void testDeleteSubscriptionSuccess() {
+		Long subscriptionId = 1L;
+
+		when(adminService.deleteSubscription(subscriptionId)).thenReturn("Subscription deleted successfully");
+
+		ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Subscription deleted successfully", response.getBody());
+
+		verify(adminService, times(1)).deleteSubscription(subscriptionId);
+	}
+
+	@Test
+	public void testDeleteSubscriptionFailureNotFound() {
+		Long subscriptionId = 1L;
+
+		when(adminService.deleteSubscription(subscriptionId)).thenReturn("Subscription not found");
+
+		ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
+
+		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals("Subscription not found", response.getBody());
+
+		verify(adminService, times(1)).deleteSubscription(subscriptionId);
+	}
+
+	@Test
+	public void testDeleteSubscriptionFailureInternalServerError() {
+		Long subscriptionId = 1L;
+
+		when(adminService.deleteSubscription(subscriptionId)).thenThrow(new RuntimeException("Internal server error"));
+
+		try {
+			ResponseEntity<String> response = adminController.DeleteSubscription(subscriptionId);
+			fail("Expected RuntimeException to be thrown");
+		} catch (RuntimeException e) {
+			assertEquals("An error occurred", e.getMessage());
+		}
+
+		verify(adminService, times(1)).deleteSubscription(subscriptionId);
+	}
+
+	@Test
+	public void testGetSubscriptionsSuccess() {
+		List<Subscription> subscriptions = new ArrayList<>();
+		Subscription subscription1 = new Subscription();
+
+		subscription1.setSubscriptionType("Premium");
+
+		subscription1.setNumberOfJobs(5);
+		subscription1.setPrice(100.0);
+
+		Subscription subscription2 = new Subscription();
+
+		subscription2.setSubscriptionType("Basic");
+
+		subscription2.setNumberOfJobs(3);
+		subscription2.setPrice(50.0);
+
+		subscriptions.add(subscription1);
+		subscriptions.add(subscription2);
+		when(adminService.getSubscription()).thenReturn(subscriptions);
+
+		ResponseEntity<List<Subscription>> response = adminController.getSubscriptions();
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(subscriptions, response.getBody());
+
+		verify(adminService, times(1)).getSubscription();
+	}
+
+	@Test
 	    public void testGetSubscriptionsFailureInternalServerError() {
 	        when(adminService.getSubscription()).thenThrow(new RuntimeException("Internal server error"));
 
@@ -388,58 +367,52 @@ class AdminControllerTest {
 
 	        verify(adminService, times(1)).getSubscription();
 	    }
-	    
-	    @Test
-	    public void testGetEmployeersSuccessApproved() {
-	        String status = "Approved";
-	        String email = "johndoe@example.com";
 
-	        when(adminService.updateStatus(status, email)).thenReturn("Employeer approved successfully");
+	@Test
+	public void testGetEmployeersSuccessApproved() {
+		String status = "Approved";
+		String email = "johndoe@example.com";
 
-	        ResponseEntity<String> response = adminController.getEmployeers(status, email);
+		when(adminService.updateStatus(status, email)).thenReturn("Employeer approved successfully");
 
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Status Updated Successfully", response.getBody());
+		ResponseEntity<String> response = adminController.getEmployeers(status, email);
 
-	        verify(adminService, times(1)).updateStatus(status, email);
-	    }
-	    
-	    @Test
-	    public void testGetEmployeersSuccessRejected() {
-	        String status = "Rejected";
-	    String email = "janedoe@example.com";
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Status Updated Successfully", response.getBody());
 
-	        when(adminService.updateStatus(status, email)).thenReturn("Employeer rejected successfully");
+		verify(adminService, times(1)).updateStatus(status, email);
+	}
 
-	        ResponseEntity<String> response = adminController.getEmployeers(status, email);
+	@Test
+	public void testGetEmployeersSuccessRejected() {
+		String status = "Rejected";
+		String email = "janedoe@example.com";
 
-	        assertEquals(HttpStatus.OK, response.getStatusCode());
-	        assertEquals("Status Updated Successfully", response.getBody());
+		when(adminService.updateStatus(status, email)).thenReturn("Employeer rejected successfully");
 
-	        verify(adminService, times(1)).updateStatus(status, email);
-	    }
-	    @Test
-	    public void testGetEmployeersFailureInternalServerError() {
-	        String status = "Approved";
-	        String email = "johndoe@example.com";
+		ResponseEntity<String> response = adminController.getEmployeers(status, email);
 
-	        when(adminService.updateStatus(status, email)).thenThrow(new RuntimeException("Internal server error"));
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("Status Updated Successfully", response.getBody());
 
-	        try {
-	            ResponseEntity<String> response = adminController.getEmployeers(status, email);
-	            fail("Expected RuntimeException to be thrown");
-	        } catch (RuntimeException e) {
-	            assertEquals("Failed to update status: Internal server error", e.getMessage());
-	        }
+		verify(adminService, times(1)).updateStatus(status, email);
+	}
 
-	        verify(adminService, times(1)).updateStatus(status, email);
-	    }
-	   
-	    
+	@Test
+	public void testGetEmployeersFailureInternalServerError() {
+		String status = "Approved";
+		String email = "johndoe@example.com";
+
+		when(adminService.updateStatus(status, email)).thenThrow(new RuntimeException("Internal server error"));
+
+		try {
+			ResponseEntity<String> response = adminController.getEmployeers(status, email);
+			fail("Expected RuntimeException to be thrown");
+		} catch (RuntimeException e) {
+			assertEquals("Failed to update status: Internal server error", e.getMessage());
+		}
+
+		verify(adminService, times(1)).updateStatus(status, email);
+	}
+
 }
-
-
-
-	
-
-

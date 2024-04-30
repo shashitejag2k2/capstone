@@ -36,16 +36,16 @@ class JobSeekerControllerTest {
 
 	    @Test
 	    public void jobSeekerRegister_Success() {
-	        // Arrange
+	        
 	        
 	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com");
+	        jobSeeker.setName("shashi teja");
+	        jobSeeker.setEmailId("shashi@email.com");
 	        jobSeeker.setPassword("password123");
-	        jobSeeker.setCollegeName("ABC University");
+	        jobSeeker.setCollegeName("Gitam University");
 	        jobSeeker.setExperience("2 years");
 	        jobSeeker.setSkills("Java, Spring, Hibernate");
-	        // Set jobSeeker properties as needed for a successful registration
+	        
 
 	        Mockito.doNothing().when(jobSeekerService).register(jobSeeker);
 
@@ -61,10 +61,10 @@ class JobSeekerControllerTest {
 	        // Arrange
 	       
 	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setName("John Doe");
-	        jobSeeker.setEmailId("john.doe@example.com");
+	        jobSeeker.setName("shashi teja");
+	        jobSeeker.setEmailId("shashi@email.com");
 	        jobSeeker.setPassword("password123");
-	        jobSeeker.setCollegeName("ABC University");
+	        jobSeeker.setCollegeName("Gitam University");
 	        jobSeeker.setExperience("2 years");
 	        jobSeeker.setSkills("Java, Spring, Hibernate");
 	        // Set jobSeeker properties as needed for a failed registration
@@ -83,7 +83,7 @@ class JobSeekerControllerTest {
 	    public void jobSeekerLogin_Success() {
 	        // Arrange
 	        JobSeeker jobSeeker = new JobSeeker();
-	        jobSeeker.setEmailId("example@gmail.com");
+	        jobSeeker.setEmailId("shashi@email.com");
 	        jobSeeker.setPassword("password");
 
 	        Mockito.when(jobSeekerService.login(jobSeeker)).thenReturn("User login successful");
@@ -117,42 +117,42 @@ class JobSeekerControllerTest {
 	    public void testGetAllJobsAppliedByJobSeekerSuccess() {
 	        // Setup: create some applied jobs objects for a job seeker with email "john.doe@example.com"
 	        AppliedJobs jobApplied1 = new AppliedJobs();
-	        jobApplied1.setAppliedBy("john.doe@example.com");
-	        jobApplied1.setPostedBy("ABC Company");
+	        jobApplied1.setAppliedBy("shashi@email.com");
+	        jobApplied1.setPostedBy("Gitam Company");
 	        jobApplied1.setJobTitle("Software Engineer");
 	        jobApplied1.setStatus("Applied");
 	        jobApplied1.setJobId(1);
 
 	        AppliedJobs jobApplied2 = new AppliedJobs();
-	        jobApplied2.setAppliedBy("john.doe@example.com");
-	        jobApplied2.setPostedBy("XYZ Company");
+	        jobApplied2.setAppliedBy("shashi@email.com");
+	        jobApplied2.setPostedBy("Gitam Company");
 	        jobApplied2.setJobTitle("Product Manager");
 	        jobApplied2.setStatus("Applied");
 	        jobApplied2.setJobId(2);
 
 	        List<AppliedJobs> expectedJobs = Arrays.asList(jobApplied1, jobApplied2);
 
-	        // Mock the jobSeekerService to return the expected list of applied jobs objects
-	        when(jobSeekerService.getJobAppliedDetails("john.doe@example.com")).thenReturn(expectedJobs);
+	        
+	        when(jobSeekerService.getJobAppliedDetails("shashi@email.com")).thenReturn(expectedJobs);
 
-	        // Test: call the getAllJobsAppliedByJobSeeker method
-	        ResponseEntity<List<AppliedJobs>> result = JobSeekerController.getAllJobsAppliedByJobSeeker("john.doe@example.com");
+	        
+	        ResponseEntity<List<AppliedJobs>> result = JobSeekerController.getAllJobsAppliedByJobSeeker("shashi@email.com");
 
-	        // Verify: the expected list of applied jobs objects should be returned
+	        
 	        assertEquals(expectedJobs, result.getBody());
 	        assertEquals(HttpStatus.OK, result.getStatusCode());
 	    }
 	    @Test
 	    public void testGetAllJobsAppliedByJobSeekerException() {
-	        // Mock the jobSeekerService to throw an exception when retrieving the list of applied jobs objects
-	        when(jobSeekerService.getJobAppliedDetails("john.doe@example.com")).thenThrow(new RuntimeException("Failed to retrieve jobs applied by job seeker"));
+	      
+	        when(jobSeekerService.getJobAppliedDetails("shashi@email.com")).thenThrow(new RuntimeException("Failed to retrieve jobs applied by job seeker"));
 
-	        // Test: call the getAllJobsAppliedByJobSeeker method
+	        
 	        try {
-	        	JobSeekerController.getAllJobsAppliedByJobSeeker("john.doe@example.com");
+	        	JobSeekerController.getAllJobsAppliedByJobSeeker("shashi@email.com");
 	            fail("Expected an exception to be thrown");
 	        } catch (RuntimeException e) {
-	            // Verify: an appropriate error message should be returned
+	            
 	            assertEquals("Failed to retrieve jobs applied by job seeker: Failed to retrieve jobs applied by job seeker", e.getMessage());
 	        }
 	    }
@@ -167,24 +167,24 @@ class JobSeekerControllerTest {
 
 	        when(jobSeekerService.applyJob(any(AppliedJobs.class))).thenReturn("Job application saved successfully");
 
-	        // Execution
+	        
 	        ResponseEntity<String> responseEntity = JobSeekerController.applyJob(jobApplication);
 
-	        // Assertion
+	      
 	        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 	        assertEquals("Job application saved successfully", responseEntity.getBody());
 	    }
 
 	    @Test
 	    public void testApplyJob_Failure() {
-	        // Mocking
+	       
 	        AppliedJobs jobApplication = new AppliedJobs();
 	        jobApplication.setAppliedBy("user@example.com");
 	        jobApplication.setJobId(123);
 
 	        when(jobSeekerService.applyJob(any(AppliedJobs.class))).thenReturn("Failed to save job application: Some error occurred");
 
-	        // Execution
+	       
 	        ResponseEntity<String> responseEntity = JobSeekerController.applyJob(jobApplication);
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 	        assertEquals("Failed to save job application: Some error occurred", responseEntity.getBody());
@@ -193,58 +193,58 @@ class JobSeekerControllerTest {
 	    @Test
 	    public void testUpdateProfileSuccess() {
 	        
-	        JobSeeker jobSeeker = new JobSeeker(/* constructor parameters */);
+	        JobSeeker jobSeeker = new JobSeeker();
 	        when(jobSeekerService.updateProfile(jobSeeker)).thenReturn("Profile Updated successfully");
 
 	        
 	        ResponseEntity<String> responseEntity = JobSeekerController.updateProfile(jobSeeker);
 
-	        // Verify the response status code
+	       
 	        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
 
-	        // Verify the response body contains the success message
+	        
 	        assertEquals("Profile Updated successfully", responseEntity.getBody());
 	    }
 	    
 	    @Test
 	    public void testUpdateProfileFailure() {
-	        // Mock jobSeeker object
-	        JobSeeker jobSeeker = new JobSeeker(/* constructor parameters */);
+	        
+	        JobSeeker jobSeeker = new JobSeeker();
 
-	        // Mock the behavior of jobSeekerService.updateProfile() to throw an exception
+	       
 	        when(jobSeekerService.updateProfile(jobSeeker)).thenThrow(new RuntimeException("Error updating profile"));
 
-	        // Call the controller method
+	       
 	        ResponseEntity<String> responseEntity = JobSeekerController.updateProfile(jobSeeker);
 
-	        // Verify the response status code
+	        
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 
-	        // Verify the response body contains the error message
+	        
 	        assertEquals("Failed to Update Profile: Error updating profile", responseEntity.getBody());
 	    }
 	    
 	    @Test
 	    public void testUpdateProfileJobSeekerNotFound() {
-	        // Mock jobSeeker object
-	        JobSeeker jobSeeker = new JobSeeker(/* constructor parameters */);
+	       
+	        JobSeeker jobSeeker = new JobSeeker();
 
-	        // Mock the behavior of jobSeekerService.updateProfile() to return job seeker not found message
+	        
 	        when(jobSeekerService.updateProfile(jobSeeker)).thenReturn("Job seeker with ID " + jobSeeker.getJobSeekerId() + " not found");
 
-	        // Call the controller method
+	        
 	        ResponseEntity<String> responseEntity = JobSeekerController.updateProfile(jobSeeker);
 
-	        // Verify the response status code
+	       
 	        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 
-	        // Verify the response body contains the job seeker not found message
+	        
 	        assertEquals("Job seeker with ID " + jobSeeker.getJobSeekerId() + " not found", responseEntity.getBody());
 	    }
 	    
 	    @Test
 	    public void testSearchJobListings_HappyPath() throws Exception {
-	        // Arrange
+	        
 	        String keyword = "java developer";
 	        List<JobListing> expectedResults = new ArrayList<>();
 	        JobListing jobListing1 = new JobListing();
@@ -259,7 +259,7 @@ class JobSeekerControllerTest {
 	        jobListing1.setLocation("New York");
 	        jobListing1.setJobMode("On-site");
 	        jobListing1.setEducationalQualification("Bachelor's degree");
-	        jobListing1.setCompanyName("ABC Corporation");
+	        jobListing1.setCompanyName("Hitachi Corporation");
 	        jobListing1.setMinimumSalary(80000);
 	        jobListing1.setMaximumSalary(120000);
 	        jobListing1.setPostedBy("John Doe");
@@ -277,7 +277,7 @@ class JobSeekerControllerTest {
 	        jobListing2.setLocation("San Francisco");
 	        jobListing2.setJobMode("Remote");
 	        jobListing2.setEducationalQualification("Master's degree");
-	        jobListing2.setCompanyName("XYZ Corporation");
+	        jobListing2.setCompanyName("Hitachi Corporation");
 	        jobListing2.setMinimumSalary(120000);
 	        jobListing2.setMaximumSalary(180000);
 	        jobListing2.setPostedBy("Jane Doe");
@@ -288,46 +288,46 @@ class JobSeekerControllerTest {
 
 	        when(jobSeekerService.searchJobListings(keyword)).thenReturn(expectedResults);
 
-	        // Act
+	        
 	        ResponseEntity<List<JobListing>> response = JobSeekerController.searchJobListings(keyword);
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.OK, response.getStatusCode());
 	        assertEquals(expectedResults, response.getBody());
 	    }
 	    
 	    @Test
 	    public void testSearchJobListings_ServiceThrowsException() throws Exception {
-	        // Arrange
+	       
 	        String keyword = "java developer";
 	        when(jobSeekerService.searchJobListings(keyword)).thenThrow(new RuntimeException("Error searching for job listings"));
 
-	        // Act
+	        
 	        ResponseEntity<List<JobListing>> response = JobSeekerController.searchJobListings(keyword);
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 	        assertEquals(null, response.getBody());
 	    }
 	    
 	    @Test
 	    public void testSearchJobListings_NoResults() throws Exception {
-	        // Arrange
+	        
 	        String keyword = "java developer";
 	        List<JobListing> expectedResults = new ArrayList<>();
 
 	        when(jobSeekerService.searchJobListings(keyword)).thenReturn(expectedResults);
 
-	        // Act
+	        
 	        ResponseEntity<List<JobListing>> response = JobSeekerController.searchJobListings(keyword);
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.OK, response.getStatusCode());
 	        assertEquals(expectedResults, response.getBody());
 	    }
 	    @Test
 	    public void testGetProfile_HappyPath() throws Exception {
-	        // Arrange
+	       
 	        String email = "shashi@email.com";
 	        JobSeeker expectedProfile = new JobSeeker();
 	        expectedProfile.setJobSeekerId(1);
@@ -340,45 +340,44 @@ class JobSeekerControllerTest {
 
 	        when(jobSeekerService.getJobSeekerDetails(email)).thenReturn(expectedProfile);
 
-	        // Act
 	        ResponseEntity<JobSeeker> response = JobSeekerController.getProfile(email);
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.OK, response.getStatusCode());
 	        assertNotNull(response.getBody());
 	        assertEquals(expectedProfile, response.getBody());
 	    }
 	    @Test
 	    public void testGetProfile_NotFound() throws Exception {
-	        // Arrange
+	        
 	        String email = "shashi.@email.com";
 	        when(jobSeekerService.getJobSeekerDetails(email)).thenReturn(null);
 
-	        // Act
+	        
 	        ResponseEntity<JobSeeker> response = JobSeekerController.getProfile(email);
 
-	        // Assert
+	      
 	        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 	        assertNotNull(response.getBody());
 	        assertEquals(null, response.getBody());
 	    }
 	    @Test
 	    public void testGetProfile_ServiceThrowsException() throws Exception {
-	        // Arrange
+	       
 	        String email = "shashi.teja@email.com";
 	        when(jobSeekerService.getJobSeekerDetails(email)).thenThrow(new RuntimeException("Error getting job seeker details"));
 
-	        // Act
+	        
 	        ResponseEntity<JobSeeker> response = JobSeekerController.getProfile(email);
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 	        assertEquals(null, response.getBody());
 	    }
 	    
 	    @Test
 	    public void testGetAllJobs() throws Exception {
-	        // Arrange
+	        
 	        List<JobListing> expectedJobs = new ArrayList<>();
 	        JobListing jobListing1 = new JobListing();
 	        jobListing1.setJobId(1);
@@ -392,7 +391,7 @@ class JobSeekerControllerTest {
 	        jobListing1.setLocation("New York");
 	        jobListing1.setJobMode("On-site");
 	        jobListing1.setEducationalQualification("Bachelor's degree");
-	        jobListing1.setCompanyName("ABC Corporation");
+	        jobListing1.setCompanyName("Hitachi Corporation");
 	        jobListing1.setMinimumSalary(80000);
 	        jobListing1.setMaximumSalary(120000);
 	        jobListing1.setPostedBy("John Doe");
@@ -410,7 +409,7 @@ class JobSeekerControllerTest {
 	        jobListing2.setLocation("San Francisco");
 	        jobListing2.setJobMode("Remote");
 	        jobListing2.setEducationalQualification("Master's degree");
-	        jobListing2.setCompanyName("XYZ Corporation");
+	        jobListing2.setCompanyName("Hitachi Corporation");
 	        jobListing2.setMinimumSalary(120000);
 	        jobListing2.setMaximumSalary(180000);
 	        jobListing2.setPostedBy("Jane Doe");
@@ -421,10 +420,10 @@ class JobSeekerControllerTest {
 
 	        when(jobSeekerService.getjobs()).thenReturn(expectedJobs);
 
-	        // Act
+	     
 	        ResponseEntity<Iterable<JobListing>> response = JobSeekerController.getAllJobs();
 
-	        // Assert
+	      
 	        assertEquals(HttpStatus.OK, response.getStatusCode());
 	        assertNotNull(response.getBody());
 	        assertEquals(expectedJobs, response.getBody());
@@ -432,13 +431,13 @@ class JobSeekerControllerTest {
 	    
 	    @Test
 	    public void testGetAllJobs_ServiceThrowsException() throws Exception {
-	        // Arrange
+	        
 	        when(jobSeekerService.getjobs()).thenThrow(new RuntimeException("Error getting jobs"));
 
-	        // Act
+	      
 	        ResponseEntity<Iterable<JobListing>> response = JobSeekerController.getAllJobs();
 
-	        // Assert
+	        
 	        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 	        assertEquals(null, response.getBody());
 	    }

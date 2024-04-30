@@ -1,0 +1,22 @@
+spring.application.name=jobhunt
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost/jobportal
+spring.datasource.username=root
+spring.datasource.password=admin
+
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=portaljobhunt@gmail.com
+spring.mail.password=ozvx bmvw eigv ndye
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+
+spring.jpa.show-sql=true
+spring.datasource.data=classpath:data.sql
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.initialization-mode=always
+
+INSERT INTO admin (name,email_id,password)
+SELECT 'Shashi Teja','shashiteja.gaddameedi@gmail.com','12345678'
+WHERE NOT EXISTS (SELECT * FROM admin WHERE email_id='shashiteja.gaddameedi@gmail.com');

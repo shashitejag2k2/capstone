@@ -1,0 +1,675 @@
+package com.hv.jobhunt.serviceImpl;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.mail.internet.MimeMessage;
+import javax.xml.bind.ValidationException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import com.hv.jobhunt.Models.AppliedJobs;
+import com.hv.jobhunt.Models.Employeer;
+import com.hv.jobhunt.Models.JobListing;
+import com.hv.jobhunt.Models.JobSeeker;
+import com.hv.jobhunt.Models.Subscription;
+import com.hv.jobhunt.configure.EmailMarkerConfig;
+import com.hv.jobhunt.repository.EmployeerRepo;
+import com.hv.jobhunt.repository.JobAppliedRepository;
+import com.hv.jobhunt.repository.JobRepository;
+import com.hv.jobhunt.repository.JobSeekerRepo;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.Template;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeerServiceImplTest {
+
+	@Qualifier("emailConfigBean")
+	@Mock
+	private Configuration emailConfig;
+
+	@Mock
+	private JobRepository jobRepository;
+
+	@Mock
+	private JavaMailSender javaMailSender;
+
+	@Mock
+	private EmployeerRepo employeerRepo;
+
+	@Mock
+	private JobAppliedRepository jobAppliedRepository;
+
+	@InjectMocks
+	private EmployeerServiceImpl employeerServiceImpl;
+
+	@Mock
+	private JobSeekerRepo jobSeekerRepo;
+
+	@Mock
+	private EmailMarkerConfig emailMarkerConfig;
+
+	@Mock
+	private Subscription subscriptionRepo;
+
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.initMocks(this);
+	}
+
+	@Test
+	public void register_Success() {
+		// Arrange
+		Employeer employee = new Employeer();
+		employee.setEmailId("shashiteja@gmail.com");
+		employee.setEmployeeId(123);
+		employee.setName("shashiteja");
+		employee.setPassword("password123");
+		employee.setCompanyName("Hitachi Company");
+		employee.setSubscriptionType("Premium");
+		employee.setSubscriptionExprirationDate(new Date());
+		employee.setStatus("Active");
+
+		Mockito.when(employeerRepo.existsByEmailId("shashiteja@gmail.com")).thenReturn(false);
+
+		String result = employeerServiceImpl.register(employee);
+
+		assertEquals("Successfully registered", result);
+		Mockito.verify(employeerRepo, Mockito.times(1)).save(employee);
+	}
+
+	@Test
+	public void register_AlreadyRegistered() {
+		// Arrange
+		Employeer employee = new Employeer();
+		employee.setEmailId("shashiteja@gmail.com");
+		employee.setEmployeeId(123);
+		employee.setName("shashi teja Doe");
+		employee.setPassword("password123");
+		employee.setCompanyName("Hitachi Company");
+		employee.setSubscriptionType("Premium");
+		employee.setSubscriptionExprirationDate(new Date());
+		employee.setStatus("Active");
+
+		Mockito.when(employeerRepo.existsByEmailId("shashiteja@gmail.com")).thenReturn(true);
+
+		String result = employeerServiceImpl.register(employee);
+
+		assertEquals("You have already registered. Please try to log in.", result);
+
+		Mockito.verify(employeerRepo, Mockito.never()).save(employee);
+	}
+
+	@Test
+	public void register_Failure() {
+
+		Employeer employee = new Employeer();
+		employee.setEmailId("test@example.com");
+
+		Mockito.when(employeerRepo.existsByEmailId("test@example.com")).thenThrow(new RuntimeException());
+
+		String result = employeerServiceImpl.register(employee);
+
+		assertEquals("Failed to register due to an unexpected error.", result);
+
+		Mockito.verify(employeerRepo, Mockito.never()).save(employee);
+	}
+
+	@Test
+	public void login_Success() {
+
+		String email = "test@example.com";
+		String password = "password123";
+		Employeer mockEmployeer = new Employeer();
+		mockEmployeer.setEmailId(email);
+		mockEmployeer.setPassword(password);
+		mockEmployeer.setStatus("active");
+
+		Mockito.when(employeerRepo.findByEmailIdAndPassword(email, password)).thenReturn(mockEmployeer);
+
+		Employeer result = employeerServiceImpl.login(email, password);
+
+		assertEquals(mockEmployeer, result);
+	}
+
+	@Test
+	public void login_WrongCredentials() {
+		// Arrange
+		String email = "test@example.com";
+		String password = "password123";
+		Employeer mockEmployeer = new Employeer();
+		mockEmployeer.setEmailId(email);
+		mockEmployeer.setPassword("differentpassword");
+
+		Mockito.when(employeerRepo.findByEmailIdAndPassword(email, password)).thenReturn(mockEmployeer);
+
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			employeerServiceImpl.login(email, password);
+		});
+
+		assertEquals("Invalid email or password", exception.getMessage());
+	}
+
+	@Test
+	public void testPostJobSuccess() {
+		JobListing jobListing = new JobListing();
+		jobListing.setJobTitle("Software Engineer");
+
+		jobListing.setEmployeeType("Full-time");
+		jobListing.setJobDescription("Design, develop, and maintain software systems.");
+		jobListing.setKeySkills("Java, Spring, Hibernate, SQL");
+		jobListing.setMinimumWorkExperience(2);
+		jobListing.setMaximumWorkExperience(5);
+		jobListing.setLocation("New York");
+		jobListing.setJobMode("On-site");
+		jobListing.setEducationalQualification("Bachelor's degree in Computer Science");
+		jobListing.setCompanyName("ABC Company");
+		jobListing.setMinimumSalary(80000.0);
+		jobListing.setMaximumSalary(120000.0);
+		jobListing.setPostedBy("John Doe");
+		jobListing.setJobApplicationStatus("open");
+
+		when(jobRepository.save(jobListing)).thenReturn(jobListing);
+
+		String result = employeerServiceImpl.postJob(jobListing);
+
+		assertEquals("Job Posted", result);
+		verify(jobRepository, times(1)).save(jobListing);
+	}
+
+	@Test
+	public void testPostJobNullObject() {
+		assertThrows(NullPointerException.class, () -> employeerServiceImpl.postJob(null));
+	}
+
+	@Test
+	public void testPostJobInvalidJobTitle() {
+		JobListing jobListing = new JobListing();
+		jobListing.setJobTitle(null);
+
+		jobListing.setEmployeeType("Full-time");
+		jobListing.setJobDescription("Design, develop, and maintain software systems.");
+		jobListing.setKeySkills("Java, Spring, Hibernate, SQL");
+		jobListing.setMinimumWorkExperience(2);
+		jobListing.setMaximumWorkExperience(5);
+		jobListing.setLocation("New York");
+		jobListing.setJobMode("On-site");
+		jobListing.setEducationalQualification("Bachelor's degree in Computer Science");
+		jobListing.setCompanyName("Hitachi Company");
+		jobListing.setMinimumSalary(80000.0);
+		jobListing.setMaximumSalary(120000.0);
+		jobListing.setPostedBy("vijay");
+		jobListing.setJobApplicationStatus("open");
+
+		assertThrows(ValidationException.class, () -> employeerServiceImpl.postJob(jobListing));
+	}
+
+	@Test
+	public void testGetJobs_ByPostedBy() {
+
+		JobListing jobListing = new JobListing();
+		jobListing.setJobTitle("Test Job");
+		jobListing.setPostedBy("test@example.com");
+		jobRepository.save(jobListing);
+
+		List<JobListing> jobListings = employeerServiceImpl.getjobs("test@example.com");
+
+		assertNotNull(jobListings);
+		assertEquals(1, jobListings.size());
+		assertEquals("Test Job", jobListings.get(0).getJobTitle());
+	}
+
+	@Test
+	public void testGetJobs_NoJobsFound() {
+		String email = "nonexistent@example.com";
+
+		List<JobListing> jobListings = employeerServiceImpl.getjobs(email);
+
+		assertNotNull(jobListings);
+		assertEquals(0, jobListings.size());
+	}
+
+	@Test
+	public void testGetJobs_MultipleJobsFound() {
+
+		JobListing jobListing1 = new JobListing();
+		jobListing1.setJobTitle("Test Job 1");
+		jobListing1.setPostedBy("test@example.com");
+		jobRepository.save(jobListing1);
+
+		JobListing jobListing2 = new JobListing();
+		jobListing2.setJobTitle("Test Job 2");
+		jobListing2.setPostedBy("test@example.com");
+		jobRepository.save(jobListing2);
+
+		List<JobListing> jobListings = employeerServiceImpl.getjobs("test@example.com");
+
+		assertNotNull(jobListings);
+		assertEquals(2, jobListings.size());
+		assertEquals("Test Job 1", jobListings.get(0).getJobTitle());
+		assertEquals("Test Job 2", jobListings.get(1).getJobTitle());
+	}
+
+	@Test
+	void testGetJobSeekersSuccess() {
+		String email = "test@example.com";
+		List<AppliedJobs> appliedJobs = new ArrayList<>();
+		when(jobAppliedRepository.findByPostedBy(email)).thenReturn(appliedJobs);
+
+		List<AppliedJobs> result = employeerServiceImpl.getjobSeekers(email);
+
+		assertEquals(appliedJobs, result);
+		verify(jobAppliedRepository, times(1)).findByPostedBy(email);
+	}
+
+	@Test
+	void testGetJobSeekersFailure() {
+		String email = "test@example.com";
+		when(jobAppliedRepository.findByPostedBy(email))
+				.thenThrow(new RuntimeException("Error retrieving job seekers"));
+
+		assertThrows(RuntimeException.class, () -> employeerServiceImpl.getjobSeekers(email));
+		verify(jobAppliedRepository, times(1)).findByPostedBy(email);
+	}
+
+	@Test
+	void testUpdateStatusSuccess() {
+		String appliedBy = "test@example.com";
+		int jobId = 1;
+		String newStatus = "APPROVED";
+
+		AppliedJobs existingJobApplied = new AppliedJobs();
+		existingJobApplied.setAppliedBy(appliedBy);
+		existingJobApplied.setJobId(jobId);
+		existingJobApplied.setStatus("PENDING");
+
+		when(jobAppliedRepository.findByAppliedByAndJobId(appliedBy, jobId))
+				.thenAnswer(invocation -> Optional.of(existingJobApplied));
+
+		assertThrows(RuntimeException.class, () -> employeerServiceImpl.updateStatus(existingJobApplied));
+
+		verify(jobAppliedRepository, times(1)).findByAppliedByAndJobId(appliedBy, jobId);
+
+		verify(jobAppliedRepository, never()).save(existingJobApplied);
+	}
+
+	@Test
+	void testUpdateStatusFailure() {
+		String appliedBy = "test@example.com";
+		int jobId = 1;
+		String newStatus = "APPROVED";
+
+		AppliedJobs existingJobApplied = new AppliedJobs();
+		existingJobApplied.setAppliedBy(appliedBy);
+		existingJobApplied.setJobId(jobId);
+		existingJobApplied.setStatus("PENDING");
+
+		when(jobAppliedRepository.findByAppliedByAndJobId(appliedBy, jobId)).thenAnswer(invocation -> Optional.empty());
+
+		assertThrows(RuntimeException.class, () -> employeerServiceImpl.updateStatus(existingJobApplied));
+		verify(jobAppliedRepository, times(1)).findByAppliedByAndJobId(appliedBy, jobId);
+		verify(jobAppliedRepository, never()).save(existingJobApplied);
+	}
+
+	@Test
+	public void testDeleteJob_Success() {
+
+		JobListing job = new JobListing();
+		job.setJobId(1);
+		job.setJobTitle("Software Engineer");
+
+		Mockito.when(jobRepository.findByjobId(1)).thenReturn(job);
+
+		String result = employeerServiceImpl.deleteJob(1);
+
+		Mockito.verify(jobRepository).deleteByjobId(1);
+		assertEquals("Record Deleted", result);
+	}
+
+	@Test
+    public void testDeleteJobNotFound() {
+       
+        when(jobRepository.findByjobId(2)).thenReturn(null);
+        String result = employeerServiceImpl.deleteJob(2);
+        assertEquals("Job with ID 2 does not exist or its title is null", result);
+    }
+
+	@Test
+	void testUpdateJobSuccess() {
+
+		JobListing jobListing = new JobListing();
+		jobListing.setJobId(1);
+		jobListing.setCompanyName("Test Company");
+
+		when(jobRepository.findByjobId(1)).thenReturn(jobListing);
+		when(jobRepository.findByjobId(1)).thenReturn(jobListing);
+		employeerServiceImpl.updateJob(jobListing);
+		verify(jobRepository, times(1)).save(jobListing);
+	}
+
+	@Test
+	void testUpdateJobNotFound() {
+
+		JobListing jobListing = new JobListing();
+		jobListing.setJobId(1);
+
+		when(jobRepository.findByjobId(1)).thenReturn(null);
+
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> employeerServiceImpl.updateJob(jobListing));
+
+		assertEquals("Job with jobId 1 not found", exception.getMessage());
+
+		verify(jobRepository, never()).save(jobListing);
+	}
+
+	@Test
+	void testUpdateJobApplicationStatusSuccess() {
+
+		int jobId = 1;
+		JobListing job = new JobListing();
+		job.setJobId(jobId);
+		job.setJobApplicationStatus("open");
+
+		when(jobRepository.findByjobId(jobId)).thenReturn(job);
+
+		String result = employeerServiceImpl.updateJobApplicationStatus(jobId);
+
+		assertEquals("Job Application Updated", result);
+		assertEquals("closed", job.getJobApplicationStatus());
+		verify(jobRepository, times(1)).save(job);
+	}
+
+	@Test
+	void testUpdateJobApplicationStatusJobNotFound() {
+
+		int jobId = 1;
+
+		when(jobRepository.findByjobId(jobId)).thenReturn(null);
+
+		NoSuchElementException exception = assertThrows(NoSuchElementException.class,
+				() -> employeerServiceImpl.updateJobApplicationStatus(jobId));
+
+		assertEquals("Job not found with ID: " + jobId, exception.getMessage());
+
+		verify(jobRepository, never()).save(any());
+	}
+
+	@Test
+	void testGetDatailsSuccess() {
+		int jobId = 1;
+		String employeerMail = "test@example.com";
+
+		AppliedJobs appliedJob1 = new AppliedJobs();
+		appliedJob1.setJobId(jobId);
+		appliedJob1.setAppliedBy("test1@example.com");
+
+		AppliedJobs appliedJob2 = new AppliedJobs();
+		appliedJob2.setJobId(jobId);
+		appliedJob2.setAppliedBy("test2@example.com");
+
+		List<AppliedJobs> appliedTableDetails = Arrays.asList(appliedJob1, appliedJob2);
+
+		when(jobAppliedRepository.findByJobId(jobId)).thenReturn(appliedTableDetails);
+
+		JobSeeker jobSeeker1 = new JobSeeker();
+		jobSeeker1.setEmailId("test1@example.com");
+		jobSeeker1.setName("Test User 1");
+
+		JobSeeker jobSeeker2 = new JobSeeker();
+		jobSeeker2.setEmailId("test2@example.com");
+		jobSeeker2.setName("Test User 2");
+
+		List<JobSeeker> jobSeekers = Arrays.asList(jobSeeker1, jobSeeker2);
+
+		when(jobSeekerRepo.findByEmailId(appliedJob1.getAppliedBy())).thenReturn(jobSeeker1);
+		when(jobSeekerRepo.findByEmailId(appliedJob2.getAppliedBy())).thenReturn(jobSeeker2);
+
+		List<JobSeeker> result = employeerServiceImpl.getDatails(jobId, employeerMail);
+
+		assertEquals(jobSeekers, result);
+		verify(jobAppliedRepository, times(1)).findByJobId(jobId);
+		verify(jobSeekerRepo, times(2)).findByEmailId(anyString());
+	}
+
+	@Test
+	void testGetDatailsJobSeekerNotFound() {
+		int jobId = 1;
+		String employeerMail = "test@example.com";
+
+		AppliedJobs appliedJob1 = new AppliedJobs();
+		appliedJob1.setJobId(jobId);
+		appliedJob1.setAppliedBy("test1@example.com");
+
+		List<AppliedJobs> appliedTableDetails = Arrays.asList(appliedJob1);
+
+		when(jobAppliedRepository.findByJobId(jobId)).thenReturn(appliedTableDetails);
+
+		when(jobSeekerRepo.findByEmailId(appliedJob1.getAppliedBy())).thenReturn(null);
+
+		List<JobSeeker> result = employeerServiceImpl.getDatails(jobId, employeerMail);
+
+		assertTrue(result.isEmpty());
+		verify(jobAppliedRepository, times(1)).findByJobId(jobId);
+		verify(jobSeekerRepo, times(1)).findByEmailId(appliedJob1.getAppliedBy());
+	}
+
+	@Test
+	void testUpdateEmployerSubscriptionSuccess() {
+		String email = "test@example.com";
+		String newSubscriptionType = "Test Subscription";
+
+		Employeer originalEmployeer = new Employeer();
+		originalEmployeer.setEmailId(email);
+		originalEmployeer.setSubscriptionType("Original Subscription");
+
+		Employeer updatedEmployeer = new Employeer();
+		updatedEmployeer.setEmailId(email);
+		updatedEmployeer.setSubscriptionType(newSubscriptionType);
+
+		when(employeerRepo.findByEmailId(email)).thenAnswer(invocation -> Optional.of(originalEmployeer));
+
+		String result = employeerServiceImpl.updateemployerSubscription(updatedEmployeer);
+
+		assertEquals("Successfully updated subscription", result);
+		assertEquals(newSubscriptionType, originalEmployeer.getSubscriptionType());
+
+		verify(employeerRepo, times(1)).findByEmailId(email);
+		verify(employeerRepo, times(1)).save(originalEmployeer);
+	}
+
+	@Test
+	void testUpdateemployerSubscriptionNotFound() {
+		String email = "test@example.com";
+		Employeer employee = new Employeer();
+		employee.setEmailId(email);
+		employee.setSubscriptionType("Test Subscription");
+
+		when(employeerRepo.findByEmailId(email)).thenAnswer(invocation -> Optional.empty());
+
+		String result = employeerServiceImpl.updateemployerSubscription(employee);
+
+		assertEquals("Employee with email " + email + " not found", result);
+		verify(employeerRepo, times(1)).findByEmailId(email);
+		verify(employeerRepo, never()).save(any(Employeer.class));
+	}
+
+	@Test
+	void testUpdateemployerSubscriptionException() {
+		String email = "test@example.com";
+		Employeer employee = new Employeer();
+		employee.setEmailId(email);
+		employee.setSubscriptionType("Test Subscription");
+
+		Employeer emp = new Employeer();
+		emp.setEmailId(email);
+		emp.setSubscriptionType("Original Subscription");
+
+		Optional<Employeer> optionalEmp = Optional.of(emp);
+		when(employeerRepo.findByEmailId(email)).thenAnswer(invocation -> optionalEmp);
+		doThrow(new RuntimeException("Test exception")).when(employeerRepo).save(emp);
+
+		String result = employeerServiceImpl.updateemployerSubscription(employee);
+
+		assertEquals("Failed to update subscription: Test exception", result);
+		verify(employeerRepo, times(1)).findByEmailId(email);
+		verify(employeerRepo, times(1)).save(emp);
+	}
+
+	@Test
+	void testGetCountSuccess() {
+		String employeerMail = "test@example.com";
+		List<JobListing> jobs = new ArrayList<>();
+		jobs.add(new JobListing());
+		jobs.add(new JobListing());
+		Employeer employeerDetails = new Employeer();
+		employeerDetails.setEmailId(employeerMail);
+		employeerDetails.setSubscriptionExprirationDate(new Date());
+
+		when(jobRepository.findByPostedBy(employeerMail)).thenReturn(jobs);
+		when(employeerRepo.findByEmailId(employeerMail)).thenReturn(employeerDetails);
+
+		Map<String, String> result = employeerServiceImpl.getCount(employeerMail);
+
+		assertEquals(2, Integer.parseInt(result.get("jobCount")));
+		assertNotNull(result.get("SubscriptionExprirationDate"));
+		verify(jobRepository, times(1)).findByPostedBy(employeerMail);
+		verify(employeerRepo, times(1)).findByEmailId(employeerMail);
+	}
+
+	@Test
+	void testGetCountNoJobs() {
+		String employeerMail = "test@example.com";
+		List<JobListing> jobs = new ArrayList<>();
+		Employeer employeerDetails = new Employeer();
+		employeerDetails.setEmailId(employeerMail);
+		employeerDetails.setSubscriptionExprirationDate(new Date());
+
+		when(jobRepository.findByPostedBy(employeerMail)).thenReturn(jobs);
+		when(employeerRepo.findByEmailId(employeerMail)).thenReturn(employeerDetails);
+
+		Map<String, String> result = employeerServiceImpl.getCount(employeerMail);
+
+		assertEquals(0, Integer.parseInt(result.get("jobCount")));
+		assertNotNull(result.get("SubscriptionExprirationDate"));
+		verify(jobRepository, times(1)).findByPostedBy(employeerMail);
+		verify(employeerRepo, times(1)).findByEmailId(employeerMail);
+	}
+
+	@Test
+	void testGetCountEmployeerNotFound() {
+		String employeerMail = "test@example.com";
+		Employeer employeerDetails = null;
+
+		when(employeerRepo.findByEmailId(employeerMail)).thenReturn(employeerDetails);
+
+		assertThrows(IllegalArgumentException.class, () -> employeerServiceImpl.getCount(employeerMail));
+		verify(employeerRepo, times(1)).findByEmailId(employeerMail);
+	}
+
+	@Test
+	void testGetSubscriptionType_EmployerFound() {
+
+		String employeerMail = "test@example.com";
+		String subscriptionType = "Test Subscription";
+		Date subscriptionExpiryDate = new Date();
+
+		Employeer employeer = new Employeer();
+		employeer.setSubscriptionType(subscriptionType);
+		employeer.setSubscriptionExprirationDate(subscriptionExpiryDate);
+		when(employeerRepo.findByEmailId(employeerMail)).thenReturn(employeer);
+
+		String result = employeerServiceImpl.getSubscriptionType(employeerMail);
+
+		assertEquals(subscriptionType, result);
+
+		verify(employeerRepo, times(1)).findByEmailId(employeerMail);
+	}
+
+	@Test
+	void testGetSubscriptionType_EmployerNotFound() {
+
+		String employeerMail = "test@example.com";
+
+		when(employeerRepo.findByEmailId(employeerMail)).thenReturn(null);
+
+		String result = employeerServiceImpl.getSubscriptionType(employeerMail);
+
+		assertEquals("Employer with email " + employeerMail + " not found", result);
+
+		verify(employeerRepo, times(1)).findByEmailId(employeerMail);
+	}
+
+	@Test
+	void testSendMail_Success() throws Exception {
+
+		String employeerEmailId = "employeer@example.com";
+		String jobseekerMailId = "jobseeker@example.com";
+		String username = "John Doe";
+		String status = "approve";
+		int jobId = 123;
+
+		Employeer employeer = new Employeer();
+		employeer.setCompanyName("ABC Corp");
+		when(employeerRepo.findByEmailId(employeerEmailId)).thenReturn(employeer);
+
+		Template template = mock(Template.class);
+		when(emailConfig.getTemplate(status + ".html")).thenReturn(template);
+
+		String emailContent = "Test email content";
+		when(FreeMarkerTemplateUtils.processTemplateIntoString(template, any())).thenReturn(emailContent);
+
+		String result = employeerServiceImpl.sendmail(employeerEmailId, jobseekerMailId, username, status, jobId);
+
+		assertEquals("Mail sent successfully", result);
+
+		verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+	}
+
+	@Test
+	void testSendMail_Exception() {
+
+		String employeerEmailId = "employeer@example.com";
+		String jobseekerMailId = "jobseeker@example.com";
+		String username = "John Doe";
+		String status = "approved";
+		int jobId = 123;
+
+		when(employeerRepo.findByEmailId(employeerEmailId)).thenThrow(new RuntimeException("Test exception"));
+
+		String result = employeerServiceImpl.sendmail(employeerEmailId, jobseekerMailId, username, status, jobId);
+
+		assertEquals("Error while Sending Mail", result);
+
+		verifyNoInteractions(javaMailSender);
+	}
+
+}

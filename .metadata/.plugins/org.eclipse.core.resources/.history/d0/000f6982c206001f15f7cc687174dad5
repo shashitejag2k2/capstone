@@ -1,0 +1,12 @@
+spring.application.name=jobhunt
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost/jobportal
+spring.datasource.username=root
+spring.datasource.password=admin
+
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=portaljobhunt@gmail.com
+spring.mail.password=ozvx bmvw eigv ndye
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true

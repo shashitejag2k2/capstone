@@ -28,508 +28,445 @@ import com.hv.jobhunt.repository.SubscriptionRepo;
 
 @ExtendWith(MockitoExtension.class)
 class AdminServiceImplTest {
-	
+
 	@InjectMocks
-    private AdminServiceImpl adminServiceImpl;
-	
+	private AdminServiceImpl adminServiceImpl;
+
 	@Mock
-    private EmployeerRepo employeerRepo;
-	
+	private EmployeerRepo employeerRepo;
+
 	@Mock
-    private AdminRepo adminRepo;
-	
+	private AdminRepo adminRepo;
+
 	@Mock
 	private SubscriptionRepo subscriptionRepo;
-	
+
 	@Test
-    public void login_Success() {
-        // Arrange
-        String email = "admin@example.com";
-        String password = "admin123";
-        Admin admin = new Admin();
-        admin.setEmailId(email);
-        admin.setPassword(password);
+	public void login_Success() {
 
-        Mockito.when(adminRepo.findByEmailIdAndPassword(email, password)).thenReturn(admin);
+		String email = "admin@example.com";
+		String password = "admin123";
+		Admin admin = new Admin();
+		admin.setEmailId(email);
+		admin.setPassword(password);
 
-        // Act
-        String result = adminServiceImpl.login(admin);
+		Mockito.when(adminRepo.findByEmailIdAndPassword(email, password)).thenReturn(admin);
 
-        // Assert
-        assertEquals("Login successful", result);
-    }
-	
+		String result = adminServiceImpl.login(admin);
+
+		assertEquals("Login successful", result);
+	}
+
 	@Test
-    public void login_InvalidCredentials() {
-        // Arrange
-        String email = "admin@example.com";
-        String password = "admin123";
-        Admin admin = new Admin();
-        admin.setEmailId(email);
-        admin.setPassword(password);
+	public void login_InvalidCredentials() {
 
-        Mockito.when(adminRepo.findByEmailIdAndPassword(email, password)).thenReturn(null);
+		String email = "admin@example.com";
+		String password = "admin123";
+		Admin admin = new Admin();
+		admin.setEmailId(email);
+		admin.setPassword(password);
 
-        // Act
-        String result = adminServiceImpl.login(admin);
+		Mockito.when(adminRepo.findByEmailIdAndPassword(email, password)).thenReturn(null);
 
-        // Assert
-        assertEquals("Invalid credentials", result);
-    }
+		String result = adminServiceImpl.login(admin);
+
+		assertEquals("Invalid credentials", result);
+	}
+
 	@Test
-    public void login_Exception() {
-        // Arrange
-        String email = "admin@example.com";
-        String password = "admin123";
-        Admin admin = new Admin();
-        admin.setEmailId(email);
-        admin.setPassword(password);
+	public void login_Exception() {
 
-        Mockito.when(adminRepo.findByEmailIdAndPassword(email, password)).thenThrow(new RuntimeException("Database connection failed"));
+		String email = "admin@example.com";
+		String password = "admin123";
+		Admin admin = new Admin();
+		admin.setEmailId(email);
+		admin.setPassword(password);
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> adminServiceImpl.login(admin));
-    }
+		Mockito.when(adminRepo.findByEmailIdAndPassword(email, password))
+				.thenThrow(new RuntimeException("Database connection failed"));
 
-	
+		assertThrows(RuntimeException.class, () -> adminServiceImpl.login(admin));
+	}
+
 	@Test
-    public void testGetEmployeersSuccess() {
-        // Mocked list of employees
-        List<Employeer> employees = new ArrayList<>();
-        Employeer employee1 = new Employeer();
-        employee1.setEmployeeId(1);
-        employee1.setName("John Doe");
-        employee1.setEmailId("john@example.com");
-        employee1.setPassword("password123");
-        employee1.setCompanyName("ABC Company");
-        employee1.setSubscriptionType("Premium");
-        employee1.setSubscriptionExprirationDate(new Date());
-        employee1.setStatus("Active");
-        employees.add(employee1);
+	public void testGetEmployeersSuccess() {
 
-        Employeer employee2 = new Employeer();
-        employee2.setEmployeeId(2);
-        employee2.setName("Jane Smith");
-        employee2.setEmailId("jane@example.com");
-        employee2.setPassword("password456");
-        employee2.setCompanyName("XYZ Corporation");
-        employee2.setSubscriptionType("Basic");
-        employee2.setSubscriptionExprirationDate(new Date());
-        employee2.setStatus("Inactive");
-        employees.add(employee2);
-        when(employeerRepo.findAll()).thenReturn(employees);
+		List<Employeer> employees = new ArrayList<>();
+		Employeer employee1 = new Employeer();
+		employee1.setEmployeeId(1);
+		employee1.setName("shashi teja");
+		employee1.setEmailId("shashi@email.com");
+		employee1.setPassword("password123");
+		employee1.setCompanyName("Hitachi Company");
+		employee1.setSubscriptionType("Premium");
+		employee1.setSubscriptionExprirationDate(new Date());
+		employee1.setStatus("Active");
+		employees.add(employee1);
 
-        // Call the service method
-        List<Employeer> result = adminServiceImpl.getEmployeers();
+		Employeer employee2 = new Employeer();
+		employee2.setEmployeeId(2);
+		employee2.setName("Jane");
+		employee2.setEmailId("jane@email.com");
+		employee2.setPassword("password456");
+		employee2.setCompanyName("Indian Corporation");
+		employee2.setSubscriptionType("Basic");
+		employee2.setSubscriptionExprirationDate(new Date());
+		employee2.setStatus("Inactive");
+		employees.add(employee2);
+		when(employeerRepo.findAll()).thenReturn(employees);
 
-        // Verify that the result matches the mocked list of employees
-        assertEquals(employees, result);
-    }
+		List<Employeer> result = adminServiceImpl.getEmployeers();
+
+		assertEquals(employees, result);
+	}
 
 	@Test
 	public void testGetEmployeers_NoEmployees_ThrowsRuntimeException() {
-	    // Arrange
+	   
 	    when(employeerRepo.findAll()).thenReturn(Collections.emptyList());
 
-	    // Act and Assert
 	    assertThrows(RuntimeException.class, () -> adminServiceImpl.getEmployeers());
 	}
 
 	@Test
 	public void testGetEmployeers_DatabaseError_ThrowsRuntimeException() {
-	    // Arrange
+	    
 	    when(employeerRepo.findAll()).thenThrow(new RuntimeException("Database error"));
 
-	    // Act and Assert
+	   
 	    assertThrows(RuntimeException.class, () -> adminServiceImpl.getEmployeers());
 	}
-    
-    @Test
-    public void testGetIndividualEmployeeNotFound() {
-        // Mocked employee ID
-        int employeeId = 123;
-        Employeer employee = new Employeer();
-        employee.setEmployeeId(employeeId);
-        employee.setName("John Doe");
-        employee.setEmailId("john@example.com");
-        employee.setPassword("password123");
-        employee.setCompanyName("ABC Company");
-        employee.setSubscriptionType("Premium");
-        employee.setSubscriptionExprirationDate(new Date());
-        employee.setStatus("Active");
 
-        // Mock the behavior of employeerRepo.findByEmployeeId() to return null
-//        when(employeerRepo.findByEmployeeId(employeeId)).thenReturn(null);
+	@Test
+	public void testGetIndividualEmployeeNotFound() {
 
-        // Verify that calling the service method with a non-existent employee ID throws a RuntimeException
-        when(employeerRepo.findByEmployeeId(employeeId)).thenReturn(employee);
+		int employeeId = 123;
+		Employeer employee = new Employeer();
+		employee.setEmployeeId(employeeId);
+		employee.setName("shashi teja");
+		employee.setEmailId("shashi@email.com");
+		employee.setPassword("password123");
+		employee.setCompanyName("Hiatchi Company");
+		employee.setSubscriptionType("Premium");
+		employee.setSubscriptionExprirationDate(new Date());
+		employee.setStatus("Active");
 
-        // Act
-        Employeer actualEmployeer = adminServiceImpl.getIndividualEmployee(employeeId);
+		when(employeerRepo.findByEmployeeId(employeeId)).thenReturn(employee);
 
-        // Assert
-        assertEquals(employee, actualEmployeer);
-    }
+		Employeer actualEmployeer = adminServiceImpl.getIndividualEmployee(employeeId);
 
-    @Test
-    public void testGetIndividualEmployeeFailure() {
-        // Mocked employee ID
-        int employeeId = 123;
+		assertEquals(employee, actualEmployeer);
+	}
 
-        // Mock the behavior of employeerRepo.findByEmployeeId() to throw an exception
-        when(employeerRepo.findByEmployeeId(employeeId)).thenThrow(new RuntimeException("Error fetching employee"));
+	@Test
+	public void testGetIndividualEmployeeFailure() {
 
-        // Verify that calling the service method with an error fetching employee ID throws a RuntimeException
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-        	adminServiceImpl.getIndividualEmployee(employeeId);
-        });
-        assertEquals("Failed to retrieve individual employee: Error fetching employee", exception.getMessage());
-    }
-    
-    @Test
-    public void testDeleteEmployeeSuccess() {
-        // Setup: create a valid employee object and save it to the database
-        Employeer employee = new Employeer();
-        employee.setEmployeeId(1);
-        employee.setName("Test Employee");
-        employee.setEmailId("test@example.com");
-        employee.setPassword("testpassword");
-        employee.setCompanyName("Test Company");
-        employee.setSubscriptionType("Test Subscription");
-        employee.setSubscriptionExprirationDate(new Date());
-        employee.setStatus("active");
-        employeerRepo.save(employee);
+		int employeeId = 123;
 
-        // Test: call the deleteEmployee method with a valid employee id
-        String result = adminServiceImpl.deleteEmployee(employee.getEmployeeId());
+		when(employeerRepo.findByEmployeeId(employeeId)).thenThrow(new RuntimeException("Error fetching employee"));
 
-        // Verify: the employee object should have been deleted from the database
-        Employeer deletedEmployee = employeerRepo.findByEmployeeId(employee.getEmployeeId());
-        assertNull(deletedEmployee);
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+			adminServiceImpl.getIndividualEmployee(employeeId);
+		});
+		assertEquals("Failed to retrieve individual employee: Error fetching employee", exception.getMessage());
+	}
 
-        // Verify: the deleteEmployee method should return a success message
-        assertEquals("Deleted employeer", result);
-    }
+	@Test
+	public void testDeleteEmployeeSuccess() {
 
-    @Test
-    public void testDeleteEmployeeNotFound() {
-        // Test: call the deleteEmployee method with an invalid employee id
-        String result = adminServiceImpl.deleteEmployee(999);
+		Employeer employee = new Employeer();
+		employee.setEmployeeId(1);
+		employee.setName("Test Employee");
+		employee.setEmailId("test@example.com");
+		employee.setPassword("testpassword");
+		employee.setCompanyName("Test Company");
+		employee.setSubscriptionType("Test Subscription");
+		employee.setSubscriptionExprirationDate(new Date());
+		employee.setStatus("active");
+		employeerRepo.save(employee);
 
-        // Verify: the deleteEmployee method should return a failure message
-        assertEquals("Failed to delete employeer: Employee not found", result);
-    }
+		String result = adminServiceImpl.deleteEmployee(employee.getEmployeeId());
 
-    @Test
-    public void testDeleteEmployeeException() {
-        // Setup: create a stub employee object with a null id
-        Employeer employee = new Employeer();
-        employee.setName("Test Employee");
-        employee.setEmailId("test@example.com");
-        employee.setPassword("testpassword");
-        employee.setCompanyName("Test Company");
-        employee.setSubscriptionType("Test Subscription");
-        employee.setSubscriptionExprirationDate(new Date());
-        employee.setStatus("active");
+		Employeer deletedEmployee = employeerRepo.findByEmployeeId(employee.getEmployeeId());
+		assertNull(deletedEmployee);
 
-        // Test: call the deleteEmployee method with an invalid employee object
-        try {
-        	adminServiceImpl.deleteEmployee(employee.getEmployeeId());
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the deleteEmployee method should throw a runtime exception
-            assertEquals("Failed to delete employeer: ", e.getMessage());
-        }
-    }
-    
-    @Test
-    public void testUpdateStatusSuccess() {
-        // Setup: Create a valid employee object and mock the behavior of the repository
-        Employeer employee = new Employeer();
-        employee.setEmailId("test@example.com");
-        employee.setStatus("approve");
-        when(employeerRepo.findByEmailId(employee.getEmailId())).thenReturn(employee);
+		assertEquals("Deleted employeer", result);
+	}
 
-        // Test: Call the updateStatus method with a valid email ID and status
-        String result = adminServiceImpl.updateStatus("reject", employee.getEmailId());
+	@Test
+	public void testDeleteEmployeeNotFound() {
 
-        // Verify: The employee object should have been updated in the repository
-        Employeer updatedEmployee = employeerRepo.findByEmailId(employee.getEmailId());
-        assertNotNull(updatedEmployee); // Make sure the updated employee exists
-        assertEquals("reject", updatedEmployee.getStatus());
+		String result = adminServiceImpl.deleteEmployee(999);
 
-        // Verify: The updateStatus method should return a success message
-        assertEquals("Status Updated", result);
-    }
+		assertEquals("Failed to delete employeer: Employee not found", result);
+	}
 
-    @Test
+	@Test
+	public void testDeleteEmployeeException() {
+
+		Employeer employee = new Employeer();
+		employee.setName("Test Employee");
+		employee.setEmailId("test@example.com");
+		employee.setPassword("testpassword");
+		employee.setCompanyName("Test Company");
+		employee.setSubscriptionType("Test Subscription");
+		employee.setSubscriptionExprirationDate(new Date());
+		employee.setStatus("active");
+
+		try {
+			adminServiceImpl.deleteEmployee(employee.getEmployeeId());
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
+
+			assertEquals("Failed to delete employeer: ", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testUpdateStatusSuccess() {
+
+		Employeer employee = new Employeer();
+		employee.setEmailId("test@example.com");
+		employee.setStatus("approve");
+		when(employeerRepo.findByEmailId(employee.getEmailId())).thenReturn(employee);
+
+		String result = adminServiceImpl.updateStatus("reject", employee.getEmailId());
+
+		Employeer updatedEmployee = employeerRepo.findByEmailId(employee.getEmailId());
+		assertNotNull(updatedEmployee);
+		assertEquals("reject", updatedEmployee.getStatus());
+
+		assertEquals("Status Updated", result);
+	}
+
+	@Test
     public void testUpdateStatusNotFound() {
-    	 // Setup: Mock the behavior of findByEmailId to return null
+    	 
         when(employeerRepo.findByEmailId("nonexistent@example.com")).thenReturn(null);
 
-        // Test: Call the updateStatus method with an invalid email id
+        
         String result = null;
         try {
             result = adminServiceImpl.updateStatus("inactive", "nonexistent@example.com");
         } catch (RuntimeException e) {
-            // Verify: The updateStatus method should throw a RuntimeException with the expected message
+            
             assertEquals("Employeer not found with email: nonexistent@example.com", e.getMessage());
         }
 
-        // Ensure that the result is null, indicating the method should throw an exception
+        
         assertNull(result);
     }
 
-    @Test
-    public void testUpdateStatusException() {
-        // Setup: create a stub employee object with a null email id
-        Employeer employee = new Employeer();
-        employee.setEmailId(null);
-        employee.setStatus("active");
+	@Test
+	public void testUpdateStatusException() {
 
-        // Test: call the updateStatus method with an invalid employee object
-        try {
-        	adminServiceImpl.updateStatus(employee.getStatus(), employee.getEmailId());
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the updateStatus method should throw a runtime exception
-            assertEquals("Failed to update status: Email ID cannot be null or empty", e.getMessage());
-        }
-    }
-    
-    
-    
-    @Test
-    public void testGetSubscriptionSuccess() {
-        // Setup: create some valid subscription objects and save them to the database
-        Subscription subscription1 = new Subscription();
-        subscription1.setSubscriptionType("Basic");
-        subscription1.setNumberOfJobs(10);
-        
-        subscription1.setPrice(9.99);
-        subscriptionRepo.save(subscription1);
+		Employeer employee = new Employeer();
+		employee.setEmailId(null);
+		employee.setStatus("active");
 
-        Subscription subscription2 = new Subscription();
-        subscription2.setSubscriptionType("Premium");
-        subscription2.setNumberOfJobs(50);
-        
-        subscription2.setPrice(29.99);
-        subscriptionRepo.save(subscription2);
-        
+		try {
+			adminServiceImpl.updateStatus(employee.getStatus(), employee.getEmailId());
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
 
-        // Test: call the getSubscription method
-        List<Subscription> subscriptions = adminServiceImpl.getSubscription();
+			assertEquals("Failed to update status: Email ID cannot be null or empty", e.getMessage());
+		}
+	}
 
-        // Verify: the getSubscription method should return a list of subscription objects
-        assertEquals(2, subscriptions.size());
-        assertTrue(subscriptions.contains(subscription1));
-        assertTrue(subscriptions.contains(subscription2));
-    }
-    
-    @Test
-    public void testGetSubscriptionEmpty() {
-        // Test: call the getSubscription method when there are no subscriptions in the database
-        List<Subscription> subscriptions = adminServiceImpl.getSubscription();
+	@Test
+	public void testGetSubscriptionSuccess() {
 
-        // Verify: the getSubscription method should return an empty list
-        assertTrue(subscriptions.isEmpty());
-    }
-    
-    @Test
-    public void testGetSubscriptionException() {
-        // Setup: create a stub subscription repository that throws an exception
-        doThrow(new RuntimeException("Test exception")).when(subscriptionRepo).findAll();
+		Subscription subscription1 = new Subscription();
+		subscription1.setSubscriptionType("Basic");
+		subscription1.setNumberOfJobs(10);
 
-        // Test: call the getSubscription method
-        try {
-        	adminServiceImpl.getSubscription();
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the getSubscription method should throw a runtime exception
-            assertEquals("Test exception", e.getMessage());
-        }
-    
-    }
-    @Test
-    public void testSubscriptionUpdateSuccess() {
-        // Setup: create a stub subscription object
-        Subscription subscription = new Subscription();
-        subscription.setId(1L);
-        subscription.setSubscriptionType("Premium");
-        subscription.setNumberOfJobs(10);
-        subscription.setPrice(100.0);
+		subscription1.setPrice(9.99);
+		subscriptionRepo.save(subscription1);
 
-        // Mock the subscriptionRepo to return a subscription object
-        Subscription existingSubscription = new Subscription();
-        existingSubscription.setId(1L);
-        existingSubscription.setSubscriptionType("Basic");
-        existingSubscription.setNumberOfJobs(5);
-        existingSubscription.setPrice(50.0);
-        when(subscriptionRepo.findById(1L)).thenReturn(existingSubscription);
+		Subscription subscription2 = new Subscription();
+		subscription2.setSubscriptionType("Premium");
+		subscription2.setNumberOfJobs(50);
 
-        // Test: call the subscriptionUpdate method with the stub subscription object
-        String result = adminServiceImpl.subscriptionUpdate(subscription);
+		subscription2.setPrice(29.99);
+		subscriptionRepo.save(subscription2);
 
-        // Verify: the subscription object should be updated and saved successfully
-        verify(subscriptionRepo).save(existingSubscription);
-        assertEquals("Saved successfully", result);
-    }
-    
+		List<Subscription> subscriptions = adminServiceImpl.getSubscription();
 
-    @Test
-    public void testSubscriptionUpdateNotFound() {
-        // Setup: create a valid subscription object with an invalid id
-        Subscription subscription = new Subscription();
-        subscription.setId(-1L);
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-        
-        subscription.setPrice(9.99);
+		assertEquals(2, subscriptions.size());
+		assertTrue(subscriptions.contains(subscription1));
+		assertTrue(subscriptions.contains(subscription2));
+	}
 
-        // Test: call the subscriptionUpdate method with the invalid subscription object
-        String result = adminServiceImpl.subscriptionUpdate(subscription);
+	@Test
+	public void testGetSubscriptionEmpty() {
 
-        // Verify: the subscriptionUpdate method should return a failure message
-        assertEquals("Not saved", result);
-    }
+		List<Subscription> subscriptions = adminServiceImpl.getSubscription();
 
-    @Test
-    public void testSubscriptionUpdateNotFoundInDatabase() {
-        // Setup: create a valid subscription object with an existing id
-        Subscription subscription = new Subscription();
-        subscription.setId(1L);
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-       
-        subscription.setPrice(9.99);
+		assertTrue(subscriptions.isEmpty());
+	}
 
-        // Test: call the subscriptionUpdate method with the subscription object
-        String result = adminServiceImpl.subscriptionUpdate(subscription);
+	@Test
+	public void testGetSubscriptionException() {
 
-        // Verify: the subscriptionUpdate method should return a failure message
-        assertEquals("Not saved", result);
-    }
+		doThrow(new RuntimeException("Test exception")).when(subscriptionRepo).findAll();
 
-    @Test
-    public void testSubscriptionUpdateException() {
-        // Setup: create a stub subscription object with a null id
-        Subscription subscription = new Subscription();
-        subscription.setId(null);
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-        
-        subscription.setPrice(9.99);
+		try {
+			adminServiceImpl.getSubscription();
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
 
-        // Test: call the subscriptionUpdate method with the invalid subscription object
-        try {
-            adminServiceImpl.subscriptionUpdate(subscription);
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the subscriptionUpdate method should throw a runtime exception
-            assertEquals("Failed to update subscription: ", e.getMessage());
-        }
-    }
-   
-    
-    @Test
-    public void testDeleteSubscriptionSuccess() {
-        // Setup: create a valid subscription object and save it to the database
-        Subscription subscription = new Subscription();
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-        
-        subscription.setPrice(9.99);
-        subscriptionRepo.save(subscription);
+			assertEquals("Test exception", e.getMessage());
+		}
 
-        // Test: call the deleteSubscription method with the valid subscription id
-        String result = adminServiceImpl.deleteSubscription(subscription.getId());
+	}
 
-        // Verify: the subscription object should have been deleted from the database
-        assertNull(subscriptionRepo.findById(subscription.getId()));
+	@Test
+	public void testSubscriptionUpdateSuccess() {
 
-        // Verify: the deleteSubscription method should return a success message
-        assertEquals("Deleted Successfully", result);
-    }
+		Subscription subscription = new Subscription();
+		subscription.setId(1L);
+		subscription.setSubscriptionType("Premium");
+		subscription.setNumberOfJobs(10);
+		subscription.setPrice(100.0);
 
-    @Test
-    public void testDeleteSubscriptionNotFound() {
-        // Test: call the deleteSubscription method with an invalid subscription id
-        String result = adminServiceImpl.deleteSubscription(-1L);
+		Subscription existingSubscription = new Subscription();
+		existingSubscription.setId(1L);
+		existingSubscription.setSubscriptionType("Basic");
+		existingSubscription.setNumberOfJobs(5);
+		existingSubscription.setPrice(50.0);
+		when(subscriptionRepo.findById(1L)).thenReturn(existingSubscription);
 
-        // Verify: the deleteSubscription method should return a failure message
-        assertEquals("Subscription not found", result);
-    }
+		String result = adminServiceImpl.subscriptionUpdate(subscription);
 
-    @Test
-    public void testDeleteSubscriptionException() {
-        // Setup: create a stub subscription object with a null id
-        Subscription subscription = new Subscription();
-        subscription.setId(null);
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-       
-        subscription.setPrice(9.99);
+		verify(subscriptionRepo).save(existingSubscription);
+		assertEquals("Saved successfully", result);
+	}
 
-        // Test: call the deleteSubscription method with the invalid subscription object
-        try {
-            adminServiceImpl.deleteSubscription(subscription.getId());
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the deleteSubscription method should throw a runtime exception
-            assertEquals("Failed to delete subscription: ", e.getMessage());
-        }
-    }
-    
-    @Test
-    public void testCreateSubscriptionSuccess() {
-        // Setup: create a valid subscription object
-        Subscription subscription = new Subscription();
-        subscription.setSubscriptionType("Basic");
-        subscription.setNumberOfJobs(10);
-        
-        subscription.setPrice(9.99);
+	@Test
+	public void testSubscriptionUpdateNotFound() {
 
-        // Test: call the createSubscription method with the valid subscription object
-        
+		Subscription subscription = new Subscription();
+		subscription.setId(-1L);
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
 
-        // Verify: the subscription object should have been saved to the database
-        when(subscriptionRepo.save(subscription)).thenReturn(subscription);
+		subscription.setPrice(9.99);
 
-        // Test: Call the createSubscription method with the valid subscription object
-        String result = adminServiceImpl.createSubscription(subscription);
+		String result = adminServiceImpl.subscriptionUpdate(subscription);
 
-        // Verify: The createSubscription method should return a success message
-        assertEquals("Subscription Created", result);
-    }
-    
-    @Test
-    public void testCreateSubscriptionException() {
-        // Setup: create a stub subscription object with a null subscription type
-        Subscription subscription = new Subscription();
-        subscription.setSubscriptionType(null);
-        subscription.setNumberOfJobs(10);
-      
-        subscription.setPrice(9.99);
+		assertEquals("Not saved", result);
+	}
 
-        // Test: call the createSubscription method with the invalid subscription object
-        try {
-            adminServiceImpl.createSubscription(subscription);
-            fail("Expected an exception to be thrown");
-        } catch (RuntimeException e) {
-            // Verify: the createSubscription method should throw a runtime exception
-            assertEquals("Failed to create subscription: Subscription object is null", e.getMessage());
-        }
-    }
-    
-    
-    
-    
-    
+	@Test
+	public void testSubscriptionUpdateNotFoundInDatabase() {
+
+		Subscription subscription = new Subscription();
+		subscription.setId(1L);
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+
+		String result = adminServiceImpl.subscriptionUpdate(subscription);
+
+		assertEquals("Not saved", result);
+	}
+
+	@Test
+	public void testSubscriptionUpdateException() {
+
+		Subscription subscription = new Subscription();
+		subscription.setId(null);
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+
+		try {
+			adminServiceImpl.subscriptionUpdate(subscription);
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
+
+			assertEquals("Failed to update subscription: ", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testDeleteSubscriptionSuccess() {
+
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+		subscriptionRepo.save(subscription);
+
+		String result = adminServiceImpl.deleteSubscription(subscription.getId());
+
+		assertNull(subscriptionRepo.findById(subscription.getId()));
+
+		assertEquals("Deleted Successfully", result);
+	}
+
+	@Test
+	public void testDeleteSubscriptionNotFound() {
+
+		String result = adminServiceImpl.deleteSubscription(-1L);
+
+		assertEquals("Subscription not found", result);
+	}
+
+	@Test
+	public void testDeleteSubscriptionException() {
+
+		Subscription subscription = new Subscription();
+		subscription.setId(null);
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+
+		try {
+			adminServiceImpl.deleteSubscription(subscription.getId());
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
+
+			assertEquals("Failed to delete subscription: ", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testCreateSubscriptionSuccess() {
+
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType("Basic");
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+
+		when(subscriptionRepo.save(subscription)).thenReturn(subscription);
+
+		String result = adminServiceImpl.createSubscription(subscription);
+
+		assertEquals("Subscription Created", result);
+	}
+
+	@Test
+	public void testCreateSubscriptionException() {
+
+		Subscription subscription = new Subscription();
+		subscription.setSubscriptionType(null);
+		subscription.setNumberOfJobs(10);
+
+		subscription.setPrice(9.99);
+
+		try {
+			adminServiceImpl.createSubscription(subscription);
+			fail("Expected an exception to be thrown");
+		} catch (RuntimeException e) {
+
+			assertEquals("Failed to create subscription: Subscription object is null", e.getMessage());
+		}
+	}
+
 }
-    
-    
-	
-
-	
-
-
